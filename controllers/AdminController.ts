@@ -56,6 +56,51 @@ class AdminController {
       res.status(400).json({ message: 'Login error' })
     }
   }
+
+  async createUser(req: Request, res: Response) {
+    try {
+      const errors = validationResult(req);
+
+      if (!errors.isEmpty()) {
+        res.status(400).json({ message: 'Ошибка при авторизации', errors });
+      }
+
+      const {
+        username,
+        password,
+        email,
+        firstName,
+        lastName,
+        phone,
+        roles,
+      } = req.body;
+
+      const candidate = await UserModel.findOne({ username });
+
+      if (candidate) {
+        return res.status(400).json({ message: 'Пользователь с таким именем уже существует' });
+      }
+
+      const hashPassword = bcrypt.hashSync(password, 7);
+
+      const rolesDB = await RoleModel.find();
+
+      const user = await UserModel.create({
+        username,
+        password: hashPassword,
+        email,
+        firstName,
+        lastName,
+        phone,
+        roles: rolesDB.filter(it => roles.includes(it.id)).map(it => it.value)
+      });
+
+      return res.json(new UserDTO(user));
+    } catch (e) {
+      console.log(e);
+      res.status(400).json({ message: 'Create error' })
+    }
+  }
 }
 
 export default new AdminController();

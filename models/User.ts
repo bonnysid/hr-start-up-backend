@@ -26,7 +26,12 @@ const User = new Schema({
     type: Boolean,
     default: false,
   },
-  roles: [{ type: String, ref: 'Role' }],
+  roles: [{ type: String, ref: 'roles' }],
+  avatar: {
+    type: String,
+    required: false,
+    default: null,
+  }
 });
 
-export default model('User', User);
+export default model('users', User);
