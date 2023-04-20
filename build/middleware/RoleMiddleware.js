@@ -1,0 +1,38 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.roleMiddleware = void 0;
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const config_1 = require("../config");
+const roleMiddleware = (roles) => {
+    return (req, res, next) => {
+        var _a;
+        if (req.method === 'OPTIONS') {
+            next();
+        }
+        try {
+            const token = (_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(' ')[1];
+            if (!token) {
+                return res.status(401).json({ message: 'Пользователь не авторизован' });
+            }
+            const decodedData = jsonwebtoken_1.default.verify(token, config_1.config.secret);
+            let hasRole = false;
+            decodedData.roles.forEach((role) => {
+                if (roles.includes(role)) {
+                    hasRole = true;
+                }
+            });
+            if (!hasRole) {
+                return res.status(403).json({ message: 'У вас нет доступа' });
+            }
+            next();
+        }
+        catch (e) {
+            console.log(e);
+            return res.status(401).json({ message: 'Пользователь не авторизован' });
+        }
+    };
+};
+exports.roleMiddleware = roleMiddleware;
