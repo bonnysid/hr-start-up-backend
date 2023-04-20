@@ -55,7 +55,7 @@ class FileController {
       if (!file) {
         return res.status(400).json({message: 'file not found'})
       }
-      fileService.deleteFile({ path: file.path, authorId: file.authorId })
+      fileService.deleteFile({ path: file.path, authorId: req.user.id })
       await file.remove()
       return res.json({message: 'File was deleted'})
     } catch (e) {
