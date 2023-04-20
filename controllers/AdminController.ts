@@ -32,7 +32,7 @@ class AdminController {
 
       const { email, password } = req.body;
 
-      const candidate = await UserModel.findOne({ email });
+      const candidate = await UserModel.findOne({ email: email.toLowerCase() });
 
       if (!candidate) {
         return res.status(400).json({ message: 'Введенны неверные параметры' });
@@ -76,7 +76,7 @@ class AdminController {
         roles,
       } = req.body;
 
-      const candidate = await UserModel.findOne({ email });
+      const candidate = await UserModel.findOne({ email: email.toLowerCase(), });
 
       if (candidate) {
         return res.status(400).json({ message: 'Пользователь с таким именем уже существует' });
@@ -87,7 +87,7 @@ class AdminController {
       const rolesDB = await RoleModel.find();
 
       const user = await UserModel.create({
-        email,
+        email: email.toLowerCase(),
         password: hashPassword,
         firstName,
         lastName,

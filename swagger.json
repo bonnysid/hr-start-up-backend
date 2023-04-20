@@ -35,7 +35,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Tokens"
+                "$ref": "#/components/schemas/Login"
               }
             }
           }
