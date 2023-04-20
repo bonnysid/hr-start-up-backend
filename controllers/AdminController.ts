@@ -6,6 +6,8 @@ import UserModel from '../models/User';
 import bcrypt from 'bcryptjs';
 import UserDTO from '../dtos/UserDTO';
 import TokenService from '../services/TokenService';
+import jwt from 'jsonwebtoken';
+import { config } from '../config';
 
 class AdminController {
   async getRoles(req: Request, res: Response) {
@@ -28,9 +30,9 @@ class AdminController {
         res.status(400).json({ message: 'Ошибка при авторизации', errors });
       }
 
-      const { username, password } = req.body;
+      const { email, password } = req.body;
 
-      const candidate = await UserModel.findOne({ username });
+      const candidate = await UserModel.findOne({ email });
 
       if (!candidate) {
         return res.status(400).json({ message: 'Введенны неверные параметры' });
@@ -50,7 +52,7 @@ class AdminController {
 
       const tokens = TokenService.generateTokens({ ...userDTO });
 
-      res.json({ accessToken: tokens.accessToken });
+      res.json({ accessToken: tokens.accessToken, refreshToken: tokens.refreshToken });
     } catch (e) {
       console.log(e);
       res.status(400).json({ message: 'Login error' })
@@ -66,16 +68,15 @@ class AdminController {
       }
 
       const {
-        username,
-        password,
         email,
+        password,
         firstName,
         lastName,
         phone,
         roles,
       } = req.body;
 
-      const candidate = await UserModel.findOne({ username });
+      const candidate = await UserModel.findOne({ email });
 
       if (candidate) {
         return res.status(400).json({ message: 'Пользователь с таким именем уже существует' });
@@ -86,9 +87,8 @@ class AdminController {
       const rolesDB = await RoleModel.find();
 
       const user = await UserModel.create({
-        username,
-        password: hashPassword,
         email,
+        password: hashPassword,
         firstName,
         lastName,
         phone,
@@ -99,6 +99,41 @@ class AdminController {
     } catch (e) {
       console.log(e);
       res.status(400).json({ message: 'Create error' })
+    }
+  }
+
+  async refreshToken(req: Request, res: Response) {
+    try {
+      const { refreshToken } = req.body;
+
+      if (!refreshToken) {
+        return res.status(401).json({ message: 'Пользователь не авторизован' })
+      }
+
+      const decodedData = jwt.verify(refreshToken, config.refreshSecret);
+      const newTokens = TokenService.generateTokens(decodedData);
+
+      return res.json(newTokens);
+    } catch (e) {
+      console.log(e);
+      return res.status(401).json({ message: 'Пользователь не авторизован' })
+    }
+  }
+
+  async checkToken(req: Request, res: Response) {
+    try {
+      const token = req.headers.authorization?.split(' ')[1];
+
+      if (!token) {
+        return res.status(401).json({ message: 'Пользователь не авторизован' })
+      }
+
+      const decodedData = jwt.verify(token, config.secret);
+
+      return res.json({ user: decodedData });
+    } catch (e) {
+      console.log(e);
+      return res.status(401).json({ message: 'Пользователь не авторизован' })
     }
   }
 }

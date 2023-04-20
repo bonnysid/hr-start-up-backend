@@ -1,6 +1,5 @@
 class UserDTO {
-  email?: string;
-  username: string;
+  email: string;
   roles: string[];
   id: string;
   isConfirmedEmail: boolean;
@@ -9,8 +8,7 @@ class UserDTO {
   lastName?: string;
 
   constructor(model: any) {
-    this.id = model._id;
-    this.username = model.username;
+    this.id = model.id;
     this.email = model.email;
     this.isConfirmedEmail = model.isConfirmedEmail;
     this.phone = model.phone;

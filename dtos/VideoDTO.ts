@@ -9,7 +9,7 @@ class VideoDTO {
   author: UserDTO;
 
   constructor(model: any) {
-    this.id = model._id;
+    this.id = model.id;
     this.title = model.title;
     this.description = model.description;
     this.path = model.path;

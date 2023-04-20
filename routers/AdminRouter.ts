@@ -7,10 +7,12 @@ import { roleMiddleware }  from '../middleware/RoleMiddleware';
 const router = Router();
 
 router.post('/login',[
-  check('username', 'Имя пользователя не может быть пустым').notEmpty(),
+  check('email', 'Имя пользователя не может быть пустым').notEmpty(),
   check('password', 'Пароль не может быть пустым').notEmpty(),
 ], AdminController.login);
 router.get('/roles', authMiddleware, roleMiddleware(['ADMIN']), AdminController.getRoles);
-router.post('/create/user', AdminController.createUser);
+router.post('/create/user', authMiddleware, roleMiddleware(['ADMIN']), AdminController.createUser);
+router.post('/refresh', AdminController.refreshToken);
+router.post('/check', AdminController.checkToken);
 
 export default router;

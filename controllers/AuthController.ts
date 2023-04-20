@@ -18,8 +18,8 @@ class AuthController {
         res.status(400).json({ message: 'Ошибка при регистрации', errors });
       }
 
-      const { username, password } = req.body;
-      const candidate = await UserModel.findOne({ username });
+      const { email, password, firstName, lastName } = req.body;
+      const candidate = await UserModel.findOne({ email });
 
       if (candidate) {
         return res.status(400).json({ message: 'Пользователь с таким именем уже существует' });
@@ -29,7 +29,7 @@ class AuthController {
 
       const userRole = await RoleModel.findOne({ value: 'USER' });
 
-      const user = new UserModel({ username, password: hashPassword, roles: [userRole] });
+      const user = new UserModel({ email, firstName, lastName, password: hashPassword, roles: [userRole] });
 
       await user.save();
 
@@ -48,9 +48,9 @@ class AuthController {
         res.status(400).json({ message: 'Ошибка при авторизации', errors });
       }
 
-      const { username, password } = req.body;
+      const { email, password } = req.body;
 
-      const candidate = await UserModel.findOne({ username });
+      const candidate = await UserModel.findOne({ email });
 
       if (!candidate) {
         return res.status(400).json({ message: 'Введенны неверные параметры' });

@@ -3,7 +3,7 @@ class RoleDTO {
   id: string;
 
   constructor(model: any) {
-    this.id = model._id;
+    this.id = model.id;
     this.value = model.value;
   }
 }
