@@ -12,7 +12,5 @@ router.post('/login',[
 ], AdminController.login);
 router.get('/roles', authMiddleware, roleMiddleware(['ADMIN']), AdminController.getRoles);
 router.post('/create/user', authMiddleware, roleMiddleware(['ADMIN']), AdminController.createUser);
-router.post('/refresh', AdminController.refreshToken);
-router.post('/check', AdminController.checkToken);
 
 export default router;

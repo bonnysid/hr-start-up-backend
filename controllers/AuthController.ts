@@ -33,7 +33,11 @@ class AuthController {
 
       await user.save();
 
-      res.json({ message: 'Пользоваетель был успешно зарегистрирован' });
+      const userDTO = new UserDTO(user)
+
+      const tokens = TokenService.generateTokens({ ...userDTO });
+
+      res.json(tokens);
     } catch (e) {
       console.log(e);
       res.status(400).json({ message: 'Registration error' })
@@ -70,18 +74,6 @@ class AuthController {
     } catch (e) {
       console.log(e);
       res.status(400).json({ message: 'Login error' })
-    }
-  }
-
-  async getUsers(req: Request, res: Response) {
-    try {
-      const users = await UserModel.find();
-      const userDTOS = users.map(it => new UserDTO(it));
-
-      return res.json(userDTOS);
-    } catch (e) {
-      console.log(e);
-      res.status(400).json({ message: 'Users error' })
     }
   }
 

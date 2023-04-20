@@ -101,41 +101,6 @@ class AdminController {
       res.status(400).json({ message: 'Create error' })
     }
   }
-
-  async refreshToken(req: Request, res: Response) {
-    try {
-      const { refreshToken } = req.body;
-
-      if (!refreshToken) {
-        return res.status(401).json({ message: 'Пользователь не авторизован' })
-      }
-
-      const decodedData = jwt.verify(refreshToken, config.refreshSecret);
-      const newTokens = TokenService.generateTokens(decodedData);
-
-      return res.json(newTokens);
-    } catch (e) {
-      console.log(e);
-      return res.status(401).json({ message: 'Пользователь не авторизован' })
-    }
-  }
-
-  async checkToken(req: Request, res: Response) {
-    try {
-      const token = req.headers.authorization?.split(' ')[1];
-
-      if (!token) {
-        return res.status(401).json({ message: 'Пользователь не авторизован' })
-      }
-
-      const decodedData = jwt.verify(token, config.secret);
-
-      return res.json({ user: decodedData });
-    } catch (e) {
-      console.log(e);
-      return res.status(401).json({ message: 'Пользователь не авторизован' })
-    }
-  }
 }
 
 export default new AdminController();
