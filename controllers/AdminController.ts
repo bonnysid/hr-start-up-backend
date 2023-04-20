@@ -3,11 +3,11 @@ import RoleModel from '../models/Role';
 import RoleDTO from '../dtos/RoleDTO';
 import { validationResult } from 'express-validator';
 import UserModel from '../models/User';
+import TagModel from '../models/Tag';
 import bcrypt from 'bcryptjs';
 import UserDTO from '../dtos/UserDTO';
 import TokenService from '../services/TokenService';
-import jwt from 'jsonwebtoken';
-import { config } from '../config';
+import TagDTO from '../dtos/TagDTO';
 
 class AdminController {
   async getRoles(req: Request, res: Response) {
@@ -19,6 +19,44 @@ class AdminController {
     } catch (e) {
       console.log(e);
       return res.status(403).json({ message: 'Нету доступа' });
+    }
+  }
+
+  async createTag(req: Request, res: Response) {
+    try {
+      const { value } = req.body;
+      const candidate = await TagModel.findOne({ value });
+
+      if (candidate) {
+        return res.status(400).json({ message: 'Тег с таким именем уже существует' });
+      }
+
+      const tag = new TagModel({ value });
+      await tag.save();
+
+      return res.status(200).json(new TagDTO(tag));
+    } catch (e) {
+      console.log(e);
+      res.status(400).json({ message: 'Create error' })
+    }
+  }
+
+  async createRole(req: Request, res: Response) {
+    try {
+      const { value } = req.body;
+      const candidate = await RoleModel.findOne({ value });
+
+      if (candidate) {
+        return res.status(400).json({ message: 'Роль с таким именем уже существует' });
+      }
+
+      const role = new RoleModel({ value });
+      await role.save();
+
+      return res.status(200).json(new RoleDTO(role));
+    } catch (e) {
+      console.log(e);
+      res.status(400).json({ message: 'Create error' })
     }
   }
 

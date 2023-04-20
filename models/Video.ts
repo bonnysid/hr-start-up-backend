@@ -17,7 +17,7 @@ const Video = new Schema({
     type: Number,
     default: 0,
   },
-  authorId: { type: String, ref: 'users', required: true },
+  authorId: { type: Schema.Types.ObjectId, ref: 'users', required: true },
 });
 
 export default model('videos', Video);

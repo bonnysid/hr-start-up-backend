@@ -7,7 +7,6 @@ import TokenService from '../services/TokenService';
 import UserDTO from '../dtos/UserDTO';
 import jwt from 'jsonwebtoken';
 import { config } from '../config';
-import User from '../models/User';
 
 class AuthController {
   async registration(req: Request, res: Response) {

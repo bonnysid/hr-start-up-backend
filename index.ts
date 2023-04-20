@@ -3,6 +3,8 @@ import mongoose from 'mongoose';
 import AuthRouter from './routers/AuthRouter';
 import AdminRouter from './routers/AdminRouter';
 import UserRouter from './routers/UserRouter';
+import TagsRouter from './routers/TagsRouter';
+import PostsRouter from './routers/PostsRouter';
 import { config } from './config';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
@@ -22,6 +24,8 @@ app.use(cookieParser());
 app.use('/auth', AuthRouter);
 app.use('/admin', AdminRouter);
 app.use('/users', UserRouter);
+app.use('/tags', TagsRouter);
+app.use('/posts', PostsRouter);
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDoc))
 
 const start = async () => {
