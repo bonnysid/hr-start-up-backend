@@ -16,5 +16,7 @@ router.post('/tags/create', authMiddleware, roleMiddleware(['ADMIN']), AdminCont
 router.post('/roles/create', authMiddleware, roleMiddleware(['ADMIN']), AdminController.createRole);
 router.delete('/tags/:id', authMiddleware, roleMiddleware(['ADMIN']), AdminController.deleteTag);
 router.put('/tags/:id', authMiddleware, roleMiddleware(['ADMIN']), AdminController.updateTag);
+router.delete('/roles/:id', authMiddleware, roleMiddleware(['ADMIN']), AdminController.deleteRole);
+router.put('/roles/:id', authMiddleware, roleMiddleware(['ADMIN']), AdminController.updateRole);
 
 export default router;

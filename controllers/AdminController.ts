@@ -167,7 +167,40 @@ class AdminController {
       return res.status(200).json({ success: true });
     } catch (e) {
       console.log(e);
-      res.status(400).json({ message: 'Create error' })
+      res.status(400).json({ message: 'Delete error' })
+    }
+  }
+
+  async updateRole(req: Request, res: Response) {
+    try {
+      const { value } = req.body;
+      const { id } = req.params;
+      const candidate = await RoleModel.findOne({ _id: id });
+
+      if (!candidate) {
+        return res.status(400).json({ message: 'Роль с таким id не найден' });
+      }
+
+      candidate.value = value;
+      await candidate.save();
+
+      return res.status(200).json(candidate);
+    } catch (e) {
+      console.log(e);
+      res.status(400).json({ message: 'Update error' })
+    }
+  }
+
+  async deleteRole(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+
+      await RoleModel.findOneAndDelete({ _id: id });
+
+      return res.status(200).json({ success: true });
+    } catch (e) {
+      console.log(e);
+      res.status(400).json({ message: 'Delete error' })
     }
   }
 }
