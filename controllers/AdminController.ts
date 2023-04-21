@@ -164,7 +164,7 @@ class AdminController {
 
       await TagModel.findOneAndDelete({ _id: id });
 
-      return res.status(200);
+      return res.status(200).json({ success: true });
     } catch (e) {
       console.log(e);
       res.status(400).json({ message: 'Create error' })
