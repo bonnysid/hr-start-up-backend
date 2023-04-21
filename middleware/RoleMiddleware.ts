@@ -1,6 +1,7 @@
 import e, { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { config } from '../config';
+import RoleDTO from '../dtos/RoleDTO';
 
 const roleMiddleware = (roles: string[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
@@ -19,8 +20,8 @@ const roleMiddleware = (roles: string[]) => {
 
       let hasRole = false;
 
-      (decodedData as any).roles.forEach((role: string) => {
-        if (roles.includes(role)) {
+      (decodedData as any).roles.forEach((role: RoleDTO) => {
+        if (roles.includes(role.value)) {
           hasRole = true;
         }
       });
