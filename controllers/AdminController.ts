@@ -16,10 +16,12 @@ class AdminController {
       const roles = await RoleModel.find();
       const canDeleteEdits: boolean[] = []
       for (let i = 0; i < roles.length; i++) {
-        const user = await UserModel.findOne({ roles: [roles[i]._id] });
+        const user = await UserModel.findOne({ roles: { $in: roles[i].id } });
         canDeleteEdits.push(!user);
       }
-      const roleDTOS = roles.map((it, i) => new RoleDTO({ ...it, canDeleteEdit: canDeleteEdits[i]}));
+      const roleDTOS = roles.map((it, i) => {
+        return new RoleDTO({ ...it.toObject(), canDeleteEdit: canDeleteEdits[i]})
+      });
 
       return res.json(roleDTOS);
     } catch (e) {
@@ -154,7 +156,7 @@ class AdminController {
         return res.status(400).json({ message: 'Тег с таким id не найден' });
       }
 
-      const post = await PostModel.findOne({ tags: [candidate._id] })
+      const post = await PostModel.findOne({ tags: { $in: id } })
 
       if (!post) {
         candidate.value = value;
@@ -174,7 +176,7 @@ class AdminController {
     try {
       const { id } = req.params;
 
-      const post = await PostModel.findOne({ tags: [id] })
+      const post = await PostModel.findOne({ tags: { $in: id } })
 
       if (!post) {
         await TagModel.findOneAndDelete({ _id: id })
@@ -199,7 +201,7 @@ class AdminController {
         return res.status(400).json({ message: 'Роль с таким id не найден' });
       }
 
-      const user = await UserModel.findOne({ roles: [id] })
+      const user = await UserModel.findOne({ roles: { $in: id } })
 
       if (!user) {
         candidate.value = value;
@@ -219,7 +221,7 @@ class AdminController {
     try {
       const { id } = req.params;
 
-      const user = await UserModel.findOne({ roles: [id] })
+      const user = await UserModel.findOne({ roles: { $in: id } })
 
       if (!user) {
         await RoleModel.findOneAndDelete({ _id: id });

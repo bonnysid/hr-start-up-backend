@@ -1,16 +1,16 @@
 import RoleDTO from './RoleDTO';
+import DefaultDTO from './DefaultDTO';
 
-class UserDTO {
+class UserDTO extends DefaultDTO {
   email: string;
   roles: string[];
-  id: string;
   isConfirmedEmail: boolean;
   phone?: string;
   firstName?: string;
   lastName?: string;
 
   constructor(model: any) {
-    this.id = model.id;
+    super(model)
     this.email = model.email;
     this.isConfirmedEmail = model.isConfirmedEmail;
     this.phone = model.phone;

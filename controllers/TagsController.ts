@@ -10,11 +10,11 @@ class TagsController {
 
       const canDeleteEdits: boolean[] = []
       for (let i = 0; i < tags.length; i++) {
-        const post = await PostModel.findOne({ tags: [tags[i]._id] });
+        const post = await PostModel.findOne({ tags: { $in: tags[i].id } });
         canDeleteEdits.push(!post);
       }
 
-      const tagsDTOS = tags.map((it, i) => new TagDTO({ ...it, canDeleteEdit: canDeleteEdits[i] }));
+      const tagsDTOS = tags.map((it, i) => new TagDTO({ ...it.toObject(), canDeleteEdit: canDeleteEdits[i] }));
 
       return res.json(tagsDTOS);
     } catch (e) {

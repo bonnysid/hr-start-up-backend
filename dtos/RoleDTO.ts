@@ -1,10 +1,11 @@
-class RoleDTO {
+import DefaultDTO from './DefaultDTO';
+
+class RoleDTO extends DefaultDTO {
   value: string;
   canDeleteEdit: boolean;
-  id: string;
 
   constructor(model: any) {
-    this.id = model.id;
+    super(model);
     this.value = model.value;
     this.canDeleteEdit = model.canDeleteEdit;
   }

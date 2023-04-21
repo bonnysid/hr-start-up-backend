@@ -1,10 +1,11 @@
-class TagDTO {
+import DefaultDTO from './DefaultDTO';
+
+class TagDTO extends DefaultDTO {
   value: string;
-  id: string;
   canDeleteEdit: boolean;
 
   constructor(model: any) {
-    this.id = model.id;
+    super(model)
     this.value = model.value;
     this.canDeleteEdit = model.canDeleteEdit;
   }
