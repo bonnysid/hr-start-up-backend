@@ -137,6 +137,39 @@ class AdminController {
       res.status(400).json({ message: 'Create error' })
     }
   }
+
+  async updateTag(req: Request, res: Response) {
+    try {
+      const { value } = req.body;
+      const { id } = req.params;
+      const candidate = await TagModel.findOne({ _id: id });
+
+      if (!candidate) {
+        return res.status(400).json({ message: 'Тег с таким id не найден' });
+      }
+
+      candidate.value = value;
+      await candidate.save();
+
+      return res.status(200).json(candidate);
+    } catch (e) {
+      console.log(e);
+      res.status(400).json({ message: 'Create error' })
+    }
+  }
+
+  async deleteTag(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+
+      await TagModel.findOneAndDelete({ _id: id });
+
+      return res.status(200);
+    } catch (e) {
+      console.log(e);
+      res.status(400).json({ message: 'Create error' })
+    }
+  }
 }
 
 export default new AdminController();

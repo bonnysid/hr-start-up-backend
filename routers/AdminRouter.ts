@@ -14,5 +14,7 @@ router.get('/roles', authMiddleware, roleMiddleware(['ADMIN']), AdminController.
 router.post('/users/create', authMiddleware, roleMiddleware(['ADMIN']), AdminController.createUser);
 router.post('/tags/create', authMiddleware, roleMiddleware(['ADMIN']), AdminController.createTag);
 router.post('/roles/create', authMiddleware, roleMiddleware(['ADMIN']), AdminController.createRole);
+router.delete('/tags/:id', authMiddleware, roleMiddleware(['ADMIN']), AdminController.deleteTag);
+router.put('/tags/:id', authMiddleware, roleMiddleware(['ADMIN']), AdminController.updateTag);
 
 export default router;
