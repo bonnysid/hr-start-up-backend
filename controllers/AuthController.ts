@@ -5,7 +5,7 @@ import { validationResult } from 'express-validator';
 import bcrypt from 'bcryptjs';
 import TokenService from '../services/TokenService';
 import UserDTO from '../dtos/UserDTO';
-import jwt from 'jsonwebtoken';
+import jwt, { Jwt } from 'jsonwebtoken';
 import { config } from '../config';
 
 class AuthController {
@@ -28,11 +28,11 @@ class AuthController {
 
       const userRole = await RoleModel.findOne({ value: 'USER' });
 
-      const user = new UserModel({ email: email.toLowerCase(), firstName, lastName, password: hashPassword, roles: [userRole] });
+      const user = new UserModel({ email: email.toLowerCase(), firstName, lastName, password: hashPassword, roles: [userRole?._id] });
 
       await user.save();
 
-      const userDTO = new UserDTO(user)
+      const userDTO = new UserDTO({ ...user, roles: [userRole] })
 
       const tokens = TokenService.generateTokens({ ...userDTO });
 
@@ -53,7 +53,7 @@ class AuthController {
 
       const { email, password } = req.body;
 
-      const candidate = await UserModel.findOne({ email: email.toLowerCase(), });
+      const candidate = await UserModel.findOne({ email: email.toLowerCase(), }).populate('roles').exec();
 
       if (!candidate) {
         return res.status(400).json({ message: 'Введенны неверные параметры' });
@@ -85,9 +85,13 @@ class AuthController {
       }
 
       const decodedData = jwt.verify(refreshToken, config.refreshSecret);
-      const newTokens = TokenService.generateTokens(decodedData);
 
-      return res.json(newTokens);
+      if (typeof decodedData !== 'string') {
+        const { iat, exp, ...data } = decodedData;
+        const newTokens = TokenService.generateTokens(data);
+
+        return res.json(newTokens);
+      }
     } catch (e) {
       console.log(e);
       return res.status(401).json({ message: 'Пользователь не авторизован' })

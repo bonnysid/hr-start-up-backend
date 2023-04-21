@@ -1,3 +1,5 @@
+import RoleDTO from './RoleDTO';
+
 class UserDTO {
   email: string;
   roles: string[];
@@ -14,7 +16,7 @@ class UserDTO {
     this.phone = model.phone;
     this.firstName = model.firstName;
     this.lastName = model.lastName;
-    this.roles = model.roles;
+    this.roles = model.roles.map((it: any) => new RoleDTO(it));
   }
 }
 

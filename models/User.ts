@@ -21,7 +21,7 @@ const User = new Schema({
     type: Boolean,
     default: false,
   },
-  roles: [{ type: Schema.Types.String, ref: 'roles' }],
+  roles: [{ type: Schema.Types.ObjectId, ref: 'roles' }],
   avatar: {
     type: String,
     required: false,

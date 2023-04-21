@@ -7,7 +7,7 @@ import { config } from '../config';
 class UsersController {
   async getUsers(req: Request, res: Response) {
     try {
-      const users = await UserModel.find();
+      const users = await UserModel.find().populate('roles').exec();
       const userDTOS = users.map(it => new UserDTO(it));
 
       return res.json(userDTOS);

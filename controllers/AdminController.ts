@@ -70,7 +70,7 @@ class AdminController {
 
       const { email, password } = req.body;
 
-      const candidate = await UserModel.findOne({ email: email.toLowerCase() });
+      const candidate = await UserModel.findOne({ email: email.toLowerCase() }).populate<{ roles: RoleDTO[] }>('roles').exec();
 
       if (!candidate) {
         return res.status(400).json({ message: 'Введенны неверные параметры' });
@@ -82,7 +82,7 @@ class AdminController {
         return res.status(400).json({ message: 'Введенны неверные параметры' });
       }
 
-      if (!candidate.roles.includes('ADMIN')) {
+      if (!candidate.roles.map(it => it.value).includes('ADMIN')) {
         return res.status(400).json({ message: 'Введенны неверные параметры' });
       }
 
@@ -122,15 +122,13 @@ class AdminController {
 
       const hashPassword = bcrypt.hashSync(password, 7);
 
-      const rolesDB = await RoleModel.find();
-
       const user = await UserModel.create({
         email: email.toLowerCase(),
         password: hashPassword,
         firstName,
         lastName,
         phone,
-        roles: rolesDB.filter(it => roles.includes(it.id)).map(it => it.value)
+        roles,
       });
 
       return res.json(new UserDTO(user));
