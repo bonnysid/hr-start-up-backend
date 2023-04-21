@@ -1,12 +1,20 @@
 import { Request, Response } from 'express';
 import TagModel from '../models/Tag';
+import PostModel from '../models/Post';
 import TagDTO from '../dtos/TagDTO';
 
 class TagsController {
   async getTags(req: Request, res: Response) {
     try {
       const tags = await TagModel.find();
-      const tagsDTOS = tags.map(it => new TagDTO(it));
+
+      const canDeleteEdits: boolean[] = []
+      for (let i = 0; i < tags.length; i++) {
+        const post = await PostModel.findOne({ tags: [tags[i]._id] });
+        canDeleteEdits.push(!post);
+      }
+
+      const tagsDTOS = tags.map((it, i) => new TagDTO({ ...it, canDeleteEdit: canDeleteEdits[i] }));
 
       return res.json(tagsDTOS);
     } catch (e) {

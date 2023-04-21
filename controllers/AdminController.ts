@@ -4,6 +4,7 @@ import RoleDTO from '../dtos/RoleDTO';
 import { validationResult } from 'express-validator';
 import UserModel from '../models/User';
 import TagModel from '../models/Tag';
+import PostModel from '../models/Post';
 import bcrypt from 'bcryptjs';
 import UserDTO from '../dtos/UserDTO';
 import TokenService from '../services/TokenService';
@@ -13,7 +14,12 @@ class AdminController {
   async getRoles(req: Request, res: Response) {
     try {
       const roles = await RoleModel.find();
-      const roleDTOS = roles.map(it => new RoleDTO(it));
+      const canDeleteEdits: boolean[] = []
+      for (let i = 0; i < roles.length; i++) {
+        const user = await UserModel.findOne({ roles: [roles[i]._id] });
+        canDeleteEdits.push(!user);
+      }
+      const roleDTOS = roles.map((it, i) => new RoleDTO({ ...it, canDeleteEdit: canDeleteEdits[i]}));
 
       return res.json(roleDTOS);
     } catch (e) {
@@ -148,10 +154,16 @@ class AdminController {
         return res.status(400).json({ message: 'Тег с таким id не найден' });
       }
 
-      candidate.value = value;
-      await candidate.save();
+      const post = await PostModel.findOne({ tags: [candidate._id] })
 
-      return res.status(200).json(candidate);
+      if (!post) {
+        candidate.value = value;
+        await candidate.save();
+
+        return res.status(200).json(candidate);
+      } else {
+        res.status(400).json({ message: 'Тег используется в постах' })
+      }
     } catch (e) {
       console.log(e);
       res.status(400).json({ message: 'Create error' })
@@ -162,9 +174,15 @@ class AdminController {
     try {
       const { id } = req.params;
 
-      await TagModel.findOneAndDelete({ _id: id });
+      const post = await PostModel.findOne({ tags: [id] })
 
-      return res.status(200).json({ success: true });
+      if (!post) {
+        await TagModel.findOneAndDelete({ _id: id })
+        return res.status(200).json({ success: true });
+      } else {
+        res.status(400).json({ message: 'Тег используется в постах' })
+      }
+
     } catch (e) {
       console.log(e);
       res.status(400).json({ message: 'Delete error' })
@@ -181,10 +199,16 @@ class AdminController {
         return res.status(400).json({ message: 'Роль с таким id не найден' });
       }
 
-      candidate.value = value;
-      await candidate.save();
+      const user = await UserModel.findOne({ roles: [id] })
 
-      return res.status(200).json(candidate);
+      if (!user) {
+        candidate.value = value;
+        await candidate.save();
+
+        return res.status(200).json(candidate);
+      } else {
+        res.status(400).json({ message: 'Роль используется у пользователей' })
+      }
     } catch (e) {
       console.log(e);
       res.status(400).json({ message: 'Update error' })
@@ -195,9 +219,15 @@ class AdminController {
     try {
       const { id } = req.params;
 
-      await RoleModel.findOneAndDelete({ _id: id });
+      const user = await UserModel.findOne({ roles: [id] })
 
-      return res.status(200).json({ success: true });
+      if (!user) {
+        await RoleModel.findOneAndDelete({ _id: id });
+        return res.status(200).json({ success: true });
+
+      } else {
+        res.status(400).json({ message: 'Роль используется у пользователей' })
+      }
     } catch (e) {
       console.log(e);
       res.status(400).json({ message: 'Delete error' })
