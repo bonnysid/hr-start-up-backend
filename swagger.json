@@ -378,6 +378,43 @@
         }
       }
     },
+    "/users/avatar": {
+      "post": {
+        "tags": [
+          "Пользователи"
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/AvatarUpload"
+              }
+            }
+          }
+        },
+        "summary": "",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/users/me": {
       "get": {
         "tags": [
@@ -527,7 +564,7 @@
           "roles": {
             "type": "array",
             "items": {
-              "type": "string"
+              "$ref": "#/components/schemas/Role"
             }
           },
           "id": {
@@ -614,6 +651,14 @@
           },
           "user": {
             "$ref": "#/components/schemas/User"
+          }
+        }
+      },
+      "AvatarUpload": {
+        "type": "object",
+        "properties": {
+          "photo": {
+            "type": "string"
           }
         }
       },

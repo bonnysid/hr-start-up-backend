@@ -8,6 +8,7 @@ class UserDTO extends DefaultDTO {
   phone?: string;
   firstName?: string;
   lastName?: string;
+  avatar?: string;
 
   constructor(model: any) {
     super(model)
@@ -16,6 +17,7 @@ class UserDTO extends DefaultDTO {
     this.phone = model.phone;
     this.firstName = model.firstName;
     this.lastName = model.lastName;
+    this.avatar = model.avatar;
     this.roles = model.roles.map((it: any) => new RoleDTO(it));
   }
 }
