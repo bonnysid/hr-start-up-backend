@@ -562,6 +562,36 @@
           }
         }
       }
+    },
+    "/posts/createTest": {
+      "post": {
+        "tags": [
+          "Посты"
+        ],
+        "summary": "",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/PostCreateTest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Post"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -774,6 +804,29 @@
             "type": "string"
           },
           "videoUrl": {
+            "type": "string"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "PostCreateTest": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "shortDescription": {
+            "type": "string"
+          },
+          "video": {
             "type": "string"
           },
           "tags": {

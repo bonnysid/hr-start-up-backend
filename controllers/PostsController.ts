@@ -111,9 +111,9 @@ class PostsController {
 
       const videoDuration = await getVideoDuration(file.path);
 
-      if (videoDuration > 10) {
+      if (videoDuration > 30) {
         fs.unlinkSync(file.path);
-        return res.status(400).json({ error: 'Длительность видео не должна привышать 10 секунд' });
+        return res.status(400).json({ error: 'Длительность видео не должна привышать 30 секунд' });
       }
 
       const post = new PostModel({ title, description, shortDescription, tags, videoUrl: file.path, user: user.id });
