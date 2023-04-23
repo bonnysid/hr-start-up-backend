@@ -21,7 +21,7 @@ app.use(cors({
     if ([process.env.CLIENT_URL, process.env.BUILD_CLIENT_URL].includes(requestOrigin)) {
       callback(null, true)
     } else {
-      callback(new Error('Not allowed by CORS'))
+      callback(null, true)
     }
   }
 }));
