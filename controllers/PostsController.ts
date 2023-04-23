@@ -5,6 +5,7 @@ import PostDTO from '../dtos/PostDTO';
 import { spawn  } from 'child_process';
 import { pipeline, Transform  } from 'stream';
 import fs from 'fs';
+import { v4 } from 'uuid';
 
 async function getVideoDuration(filePath: string): Promise<number> {
   const ffprobe = spawn('ffprobe', [
@@ -73,13 +74,18 @@ class PostsController {
 
       const videoDuration = await getVideoDuration(file.path);
 
+      const fileName = user.id;
+      const fileExtension = file.originalname.split('.').pop();
+      const newFileName = `${v4()}.${fileName}.${fileExtension}`;
+      const newFilePath = `videos/${newFileName}`;
+      const videoUrl = `http://${req.headers.host}/videos/${newFileName}`;
+
       if (videoDuration > 30) {
         fs.unlinkSync(file.path);
         return res.status(400).json({ error: 'Длительность видео не должна привышать 30 секунд' });
       }
 
-      const splittedVideoUrl = file.path.split('\\');
-      const videoUrl = `http://${req.headers.host}/videos/${splittedVideoUrl[splittedVideoUrl.length - 1]}`;
+      fs.renameSync(file.path, newFilePath);
 
       const post = new PostModel({ title, description, shortDescription, tags: parsedTags, videoUrl, user: user.id });
       await post.save();
