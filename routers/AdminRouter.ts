@@ -11,6 +11,7 @@ router.post('/login',[
   check('password', 'Пароль не может быть пустым').notEmpty(),
 ], AdminController.login);
 router.get('/roles', authMiddleware, roleMiddleware(['ADMIN']), AdminController.getRoles);
+router.get('/posts', authMiddleware, roleMiddleware(['ADMIN']), AdminController.getPosts);
 router.post('/users/create', authMiddleware, roleMiddleware(['ADMIN']), AdminController.createUser);
 router.get('/users', authMiddleware, roleMiddleware(['ADMIN']), AdminController.getUsers);
 router.post('/tags/create', authMiddleware, roleMiddleware(['ADMIN']), AdminController.createTag);

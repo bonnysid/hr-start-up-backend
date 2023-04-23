@@ -9,6 +9,7 @@ import bcrypt from 'bcryptjs';
 import UserDTO from '../dtos/UserDTO';
 import TokenService from '../services/TokenService';
 import TagDTO from '../dtos/TagDTO';
+import PostDTO from '../dtos/PostDTO';
 
 class AdminController {
   async getRoles(req: Request, res: Response) {
@@ -250,6 +251,18 @@ class AdminController {
     } catch (e) {
       console.log(e);
       res.status(400).json({ message: 'Users error' })
+    }
+  }
+
+  async getPosts(req: Request, res: Response) {
+    try {
+      const posts = await PostModel.find().populate('user', 'tags').exec();
+      const postsDTOS = posts.map(it => new PostDTO(it));
+
+      return res.json(postsDTOS);
+    } catch (e) {
+      console.log(e);
+      return res.status(500).json({ message: 'Server error' });
     }
   }
 

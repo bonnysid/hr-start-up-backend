@@ -533,6 +533,29 @@
         }
       }
     },
+    "/admin/posts": {
+      "get": {
+        "tags": [
+          "Административная панель"
+        ],
+        "summary": "",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Post"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/posts/create": {
       "post": {
         "tags": [
