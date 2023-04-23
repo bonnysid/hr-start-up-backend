@@ -31,7 +31,7 @@ class UsersController {
 
       const user = await UserModel.findOne({ _id: (decodedData as any).id }).populate('roles').exec();
 
-      return res.json({ user: new UserDTO(user) });
+      return res.json(new UserDTO(user));
     } catch (e) {
       console.log(e);
       return res.status(401).json({ message: 'Пользователь не авторизован' })
