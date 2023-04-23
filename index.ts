@@ -17,7 +17,13 @@ const app = express();
 
 app.use(cors({
   credentials: true,
-  origin: process.env.CLIENT_URL
+  origin: (requestOrigin, callback) => {
+    if ([process.env.CLIENT_URL, process.env.BUILD_CLIENT_URL].includes(requestOrigin)) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  }
 }));
 app.use(express.json());
 app.use(cookieParser());
