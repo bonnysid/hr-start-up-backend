@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import UserModel from '../models/User';
+import UserModel, { UserStatus } from '../models/User';
 import RoleModel from '../models/Role';
 import { validationResult } from 'express-validator';
 import bcrypt from 'bcryptjs';
@@ -57,6 +57,10 @@ class AuthController {
 
       if (!candidate) {
         return res.status(400).json({ message: 'Введенны неверные параметры' });
+      }
+
+      if (candidate.status === UserStatus.BANNED) {
+        return res.status(401).json({ message: 'Пользователь заблокирован' })
       }
 
       const validPassword = bcrypt.compareSync(password, candidate.password);

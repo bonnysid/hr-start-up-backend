@@ -1,5 +1,6 @@
 import RoleDTO from './RoleDTO';
 import DefaultDTO from './DefaultDTO';
+import { UserStatus } from '../models/User';
 
 class UserDTO extends DefaultDTO {
   email: string;
@@ -9,6 +10,7 @@ class UserDTO extends DefaultDTO {
   firstName?: string;
   lastName?: string;
   avatar?: string;
+  status?: string;
 
   constructor(model: any) {
     super(model)
@@ -18,6 +20,7 @@ class UserDTO extends DefaultDTO {
     this.firstName = model.firstName;
     this.lastName = model.lastName;
     this.avatar = model.avatar;
+    this.status = model.status || UserStatus.ACTIVE;
     this.roles = model.roles.map((it: any) => new RoleDTO(it));
   }
 }

@@ -12,11 +12,16 @@ router.post('/login',[
 ], AdminController.login);
 router.get('/roles', authMiddleware, roleMiddleware(['ADMIN']), AdminController.getRoles);
 router.post('/users/create', authMiddleware, roleMiddleware(['ADMIN']), AdminController.createUser);
+router.get('/users', authMiddleware, roleMiddleware(['ADMIN']), AdminController.getUsers);
 router.post('/tags/create', authMiddleware, roleMiddleware(['ADMIN']), AdminController.createTag);
 router.post('/roles/create', authMiddleware, roleMiddleware(['ADMIN']), AdminController.createRole);
 router.delete('/tags/:id', authMiddleware, roleMiddleware(['ADMIN']), AdminController.deleteTag);
 router.put('/tags/:id', authMiddleware, roleMiddleware(['ADMIN']), AdminController.updateTag);
 router.delete('/roles/:id', authMiddleware, roleMiddleware(['ADMIN']), AdminController.deleteRole);
 router.put('/roles/:id', authMiddleware, roleMiddleware(['ADMIN']), AdminController.updateRole);
+router.post('/users/ban/:id', authMiddleware, roleMiddleware(['ADMIN']), AdminController.banUser);
+router.post('/users/unban/:id', authMiddleware, roleMiddleware(['ADMIN']), AdminController.unbanUser);
+router.post('/posts/ban/:id', authMiddleware, roleMiddleware(['ADMIN']), AdminController.banPost);
+router.post('/posts/unban/:id', authMiddleware, roleMiddleware(['ADMIN']), AdminController.unbanPost);
 
 export default router;

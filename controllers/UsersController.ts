@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import UserModel from '../models/User';
+import UserModel, { UserStatus } from '../models/User';
 import UserDTO from '../dtos/UserDTO';
 import jwt from 'jsonwebtoken';
 import { config } from '../config';
@@ -10,7 +10,7 @@ class UsersController {
   async getUsers(req: Request, res: Response) {
     try {
       const user = (req as any).user
-      const users = await UserModel.find({ email: { $not: new RegExp(user.email)  } }).populate('roles').exec();
+      const users = await UserModel.find({ email: { $not: new RegExp(user.email)  }, status: { $not: new RegExp(UserStatus.BANNED) } }).populate('roles').exec();
       const userDTOS = users.map(it => new UserDTO(it));
 
       return res.json(userDTOS);

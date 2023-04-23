@@ -234,6 +234,58 @@
         }
       }
     },
+    "/admin/users/ban/{id}": {
+      "post": {
+        "tags": [
+          "Административная панель"
+        ],
+        "summary": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/admin/users/unban/{id}": {
+      "post": {
+        "tags": [
+          "Административная панель"
+        ],
+        "summary": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/admin/posts/ban/{id}": {
+      "post": {
+        "tags": [
+          "Административная панель"
+        ],
+        "summary": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/admin/posts/unban/{id}": {
+      "post": {
+        "tags": [
+          "Административная панель"
+        ],
+        "summary": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/admin/roles/{id}": {
       "put": {
         "tags": [
@@ -370,6 +422,29 @@
                   "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/users": {
+      "get": {
+        "tags": [
+          "Административная панель"
+        ],
+        "summary": "",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AdminUser"
                   }
                 }
               }
@@ -554,6 +629,35 @@
         "type": "object",
         "properties": {
           "email": {
+            "type": "string"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Role"
+            }
+          },
+          "id": {
+            "type": "string"
+          },
+          "isConfirmedEmail": {
+            "type": "boolean"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          }
+        }
+      },
+      "AdminUser": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "status": {
             "type": "string"
           },
           "roles": {

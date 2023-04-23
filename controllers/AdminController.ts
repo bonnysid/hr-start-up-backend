@@ -2,9 +2,9 @@ import { Request, Response } from 'express';
 import RoleModel from '../models/Role';
 import RoleDTO from '../dtos/RoleDTO';
 import { validationResult } from 'express-validator';
-import UserModel from '../models/User';
+import UserModel, { UserStatus } from '../models/User';
 import TagModel from '../models/Tag';
-import PostModel from '../models/Post';
+import PostModel, { PostStatus } from '../models/Post';
 import bcrypt from 'bcryptjs';
 import UserDTO from '../dtos/UserDTO';
 import TokenService from '../services/TokenService';
@@ -82,6 +82,10 @@ class AdminController {
 
       if (!candidate) {
         return res.status(400).json({ message: 'Введенны неверные параметры' });
+      }
+
+      if (candidate.status === UserStatus.BANNED) {
+        return res.status(401).json({ message: 'Пользователь заблокирован' })
       }
 
       const validPassword = bcrypt.compareSync(password, candidate.password);
@@ -233,6 +237,117 @@ class AdminController {
     } catch (e) {
       console.log(e);
       res.status(400).json({ message: 'Delete error' })
+    }
+  }
+
+  async getUsers(req: Request, res: Response) {
+    try {
+      const user = (req as any).user
+      const users = await UserModel.find({ email: { $not: new RegExp(user.email)  } }).populate('roles').exec();
+      const userDTOS = users.map(it => new UserDTO(it));
+
+      return res.json(userDTOS);
+    } catch (e) {
+      console.log(e);
+      res.status(400).json({ message: 'Users error' })
+    }
+  }
+
+  async banUser(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+
+      const user = await UserModel.findOne({ _id: id })
+
+      if (!user) {
+        return res.status(400).json({ message: 'Пользователь не найден' })
+      }
+
+      const posts = await PostModel.find({ user: id });
+
+      if (posts) {
+        posts.forEach(post => {
+          post.status = PostStatus.BANNED;
+          post.save();
+        })
+      }
+
+      user.status = UserStatus.BANNED;
+      await user.save()
+
+      return res.status(200).json({ message: 'Пользователь успешно заблокирован' })
+    } catch (e) {
+      console.log(e);
+      res.status(400).json({ message: 'Ban error' })
+    }
+  }
+
+  async unbanUser(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+
+      const user = await UserModel.findOne({ _id: id })
+
+      if (!user) {
+        return res.status(400).json({ message: 'Пользователь не найден' })
+      }
+
+      const posts = await PostModel.find({ user: id });
+
+      if (posts) {
+        posts.forEach(post => {
+          post.status = PostStatus.ACTIVE;
+          post.save();
+        })
+      }
+
+      user.status = UserStatus.ACTIVE;
+      await user.save()
+
+      return res.status(200).json({ message: 'Пользователь успешно разблокирован' })
+    } catch (e) {
+      console.log(e);
+      res.status(400).json({ message: 'Unban error' })
+    }
+  }
+
+  async banPost(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+
+      const post = await PostModel.findOne({ _id: id })
+
+      if (!post) {
+        return res.status(400).json({ message: 'Пост не найден' })
+      }
+
+      post.status = PostStatus.BANNED;
+      await post.save()
+
+      return res.status(200).json({ message: 'Пост успешно заблокирован' })
+    } catch (e) {
+      console.log(e);
+      res.status(400).json({ message: 'Ban error' })
+    }
+  }
+
+  async unbanPost(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+
+      const post = await PostModel.findOne({ _id: id })
+
+      if (!post) {
+        return res.status(400).json({ message: 'Пост не найден' })
+      }
+
+      post.status = PostStatus.ACTIVE;
+      await post.save()
+
+      return res.status(200).json({ message: 'Пост успешно разблокирован' })
+    } catch (e) {
+      console.log(e);
+      res.status(400).json({ message: 'Unban error' })
     }
   }
 }
