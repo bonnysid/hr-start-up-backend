@@ -678,6 +678,9 @@
           },
           "lastName": {
             "type": "string"
+          },
+          "avatar": {
+            "type": "string"
           }
         }
       },
@@ -706,6 +709,9 @@
             "type": "string"
           },
           "lastName": {
+            "type": "string"
+          },
+          "avatar": {
             "type": "string"
           }
         }
