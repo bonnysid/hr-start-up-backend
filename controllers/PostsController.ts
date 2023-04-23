@@ -2,14 +2,9 @@ import { Request, Response } from 'express';
 import PostModel, { PostStatus } from '../models/Post';
 import PostDTO from '../dtos/PostDTO';
 
-
-import multer from 'multer';
-import path from 'path';
-
 import { spawn  } from 'child_process';
 import { pipeline, Transform  } from 'stream';
 import fs from 'fs';
-import { v4 } from 'uuid';
 
 async function getVideoDuration(filePath: string): Promise<number> {
   const ffprobe = spawn('ffprobe', [
@@ -48,17 +43,6 @@ async function getVideoDuration(filePath: string): Promise<number> {
   });
 }
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, 'videos'));
-  },
-  filename: (req, file, cb) => {
-    cb(null, `${v4()}_${file.originalname}`);
-  },
-});
-
-export const upload = multer({ storage });
-
 class PostsController {
   async getPosts(req: Request, res: Response) {
     try {
@@ -73,30 +57,6 @@ class PostsController {
   }
 
   async createPost(req: Request, res: Response) {
-    try {
-      const {
-        title,
-        description,
-        shortDescription,
-        tags,
-        videoUrl,
-      } = req.body;
-
-      const user = (req as any).user;
-
-      const post = new PostModel({ title, description, shortDescription, tags, videoUrl, user: user.id });
-      await post.save();
-
-      const savedPost = post.populate('tags', 'user')
-
-      return res.json(new PostDTO(savedPost));
-    } catch (e) {
-      console.log(e);
-      return res.status(500).json({ message: 'Server error' });
-    }
-  }
-
-  async createTestPost(req: Request, res: Response) {
     const file = (req as any).file;
 
     try {
@@ -107,6 +67,8 @@ class PostsController {
         tags,
       } = req.body;
 
+      const parsedTags = JSON.parse(tags);
+
       const user = (req as any).user;
 
       const videoDuration = await getVideoDuration(file.path);
@@ -116,12 +78,13 @@ class PostsController {
         return res.status(400).json({ error: 'Длительность видео не должна привышать 30 секунд' });
       }
 
-      const post = new PostModel({ title, description, shortDescription, tags, videoUrl: file.path, user: user.id });
+      const splittedVideoUrl = file.path.split('\\');
+      const videoUrl = `http://${req.headers.host}/videos/${splittedVideoUrl[splittedVideoUrl.length - 1]}`;
+
+      const post = new PostModel({ title, description, shortDescription, tags: parsedTags, videoUrl, user: user.id });
       await post.save();
 
-      const savedPost = post.populate('tags', 'user')
-
-      return res.json(new PostDTO(savedPost));
+      return res.json({ success: true, videoUrl });
     } catch (err) {
       console.error(err);
       fs.unlinkSync(file.path);

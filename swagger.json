@@ -544,36 +544,6 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/PostCreate"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Post"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/posts/createTest": {
-      "post": {
-        "tags": [
-          "Посты"
-        ],
-        "summary": "",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "multipart/form-data": {
-              "schema": {
                 "$ref": "#/components/schemas/PostCreateTest"
               }
             }
@@ -584,15 +554,16 @@
             "description": "OK",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Post"
+                "example": {
+                  "success": "true",
+                  "videoUrl": "string"
                 }
               }
             }
           }
         }
       }
-    }
+    },
   },
   "components": {
     "schemas": {
