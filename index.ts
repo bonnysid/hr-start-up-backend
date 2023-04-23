@@ -28,6 +28,7 @@ app.use('/tags', TagsRouter);
 app.use('/posts', PostsRouter);
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDoc))
 app.use('/avatars', express.static('avatars'));
+app.use('/videos', express.static('videos'));
 
 const start = async () => {
   try {
