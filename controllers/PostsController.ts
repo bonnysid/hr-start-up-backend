@@ -8,7 +8,12 @@ import { getVideoDurationInSeconds } from 'get-video-duration';
 class PostsController {
   async getPosts(req: Request, res: Response) {
     try {
-      const posts = await PostModel.find({ status: PostStatus.ACTIVE }).populate('user', 'tags').exec();
+      const posts = await PostModel.find({ status: PostStatus.ACTIVE }).populate([{
+        path: 'user',
+        populate: {
+          path: 'roles',
+        },
+      }, { path: 'tags' }]).exec();
       const postsDTOS = posts.map(it => new PostDTO(it));
 
       return res.json(postsDTOS);

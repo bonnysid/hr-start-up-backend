@@ -256,9 +256,14 @@ class AdminController {
 
   async getPosts(req: Request, res: Response) {
     try {
-      const posts = await PostModel.find().populate('user', 'tags').exec();
-      const postsDTOS = posts.map(it => new PostDTO(it));
+      const posts = await PostModel.find().populate([{
+        path: 'user',
+        populate: {
+          path: 'roles',
+        },
+      }, { path: 'tags' }]).exec();
 
+      const postsDTOS = posts.map(it => new PostDTO(it));
       return res.json(postsDTOS);
     } catch (e) {
       console.log(e);
