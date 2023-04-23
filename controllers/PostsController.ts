@@ -1,48 +1,9 @@
 import { Request, Response } from 'express';
 import PostModel, { PostStatus } from '../models/Post';
 import PostDTO from '../dtos/PostDTO';
-
-import { spawn  } from 'child_process';
-import { pipeline, Transform  } from 'stream';
 import fs from 'fs';
 import { v4 } from 'uuid';
-
-async function getVideoDuration(filePath: string): Promise<number> {
-  const ffprobe = spawn('ffprobe', [
-    '-v', 'error',
-    '-show_entries', 'format=duration',
-    '-of', 'default=noprint_wrappers=1:nokey=1',
-    filePath
-  ], { shell: true });
-
-  return new Promise((resolve, reject) => {
-    let stdout = '';
-    const parseDuration = new Transform({
-      readableObjectMode: true,
-      transform(chunk, encoding, callback) {
-        stdout += chunk.toString();
-        callback(null, chunk);
-      },
-      flush(callback) {
-        try {
-          resolve(parseFloat(stdout.trim()));
-        } catch (error) {
-          reject(error);
-        }
-        callback();
-      }
-    });
-
-    ffprobe.stdout?.on('error', (err: Error) => reject(err));
-    parseDuration.on('error', (err: Error) => reject(err));
-
-    pipeline(ffprobe.stdout, parseDuration, (err) => {
-      if (err) {
-        reject(err);
-      }
-    });
-  });
-}
+import { getVideoDurationInSeconds } from 'get-video-duration';
 
 class PostsController {
   async getPosts(req: Request, res: Response) {
@@ -72,13 +33,15 @@ class PostsController {
 
       const user = (req as any).user;
 
-      const videoDuration = await getVideoDuration(file.path);
+      const videoDuration = await getVideoDurationInSeconds(file.path);
 
       const fileName = user.id;
       const fileExtension = file.originalname.split('.').pop();
       const newFileName = `${v4()}.${fileName}.${fileExtension}`;
       const newFilePath = `videos/${newFileName}`;
       const videoUrl = `http://${req.headers.host}/videos/${newFileName}`;
+
+      console.log(videoDuration);
 
       if (videoDuration > 30) {
         fs.unlinkSync(file.path);

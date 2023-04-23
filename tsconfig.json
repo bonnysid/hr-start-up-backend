@@ -8,6 +8,9 @@
         "resolveJsonModule": true,
         "strict": true
     },
+    "include": [
+        "./index.d.ts"
+    ],
     "exclude": [
         "node_modules"
     ]
