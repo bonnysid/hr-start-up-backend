@@ -9,6 +9,8 @@ class UserDTO extends DefaultDTO {
   phone?: string;
   firstName?: string;
   lastName?: string;
+  updatedAt: string;
+  createdAt: string;
   avatar?: string;
   status?: string;
 
@@ -19,6 +21,8 @@ class UserDTO extends DefaultDTO {
     this.phone = model.phone;
     this.firstName = model.firstName;
     this.lastName = model.lastName;
+    this.updatedAt = model.updatedAt;
+    this.createdAt = model.createdAt;
     this.avatar = model.avatar;
     this.status = model.status || UserStatus.ACTIVE;
     this.roles = model.roles.map((it: any) => new RoleDTO(it));

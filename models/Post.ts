@@ -27,6 +27,6 @@ const Post = new Schema({
   },
   tags: [{ type: Schema.Types.ObjectId, ref: 'tags' }],
   user: { type: Schema.Types.ObjectId, ref: 'users' },
-});
+}, { timestamps: true });
 
 export default model('posts', Post);

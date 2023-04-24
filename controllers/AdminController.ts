@@ -148,7 +148,7 @@ class AdminController {
 
       const hashPassword = bcrypt.hashSync(password, 7);
 
-      const user = await UserModel.create({
+      const user = new UserModel({
         email: email.toLowerCase(),
         password: hashPassword,
         firstName,
@@ -156,6 +156,7 @@ class AdminController {
         phone,
         roles: roles.length ? roles : [userRole?._id],
       });
+      await user.save()
 
       return res.json(new UserDTO(user));
     } catch (e) {

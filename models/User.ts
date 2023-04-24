@@ -18,6 +18,7 @@ const User = new Schema({
   },
   email: {
     type: String,
+    unique: true,
   },
   phone: {
     type: String,
@@ -33,6 +34,6 @@ const User = new Schema({
     required: false,
     default: null,
   }
-});
+}, { timestamps: true });
 
 export default model('users', User);
