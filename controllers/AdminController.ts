@@ -33,6 +33,12 @@ class AdminController {
 
   async createTag(req: Request, res: Response) {
     try {
+      const errors = validationResult(req);
+
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ message: 'Ошибка при создании', errors });
+      }
+
       const { value } = req.body;
       const candidate = await TagModel.findOne({ value });
 
@@ -52,6 +58,12 @@ class AdminController {
 
   async createRole(req: Request, res: Response) {
     try {
+      const errors = validationResult(req);
+
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ message: 'Ошибка при создании', errors });
+      }
+
       const { value } = req.body;
       const candidate = await RoleModel.findOne({ value });
 
@@ -74,7 +86,7 @@ class AdminController {
       const errors = validationResult(req);
 
       if (!errors.isEmpty()) {
-        res.status(400).json({ message: 'Ошибка при авторизации', errors });
+        return res.status(400).json({ message: 'Ошибка при авторизации', errors });
       }
 
       const { email, password } = req.body;
@@ -115,7 +127,7 @@ class AdminController {
       const errors = validationResult(req);
 
       if (!errors.isEmpty()) {
-        res.status(400).json({ message: 'Ошибка при авторизации', errors });
+        return res.status(400).json({ message: 'Ошибка при создании', errors });
       }
 
       const {
@@ -128,6 +140,7 @@ class AdminController {
       } = req.body;
 
       const candidate = await UserModel.findOne({ email: email.toLowerCase(), });
+      const userRole = await RoleModel.findOne({ value: 'USER' });
 
       if (candidate) {
         return res.status(400).json({ message: 'Пользователь с таким именем уже существует' });
@@ -141,7 +154,7 @@ class AdminController {
         firstName,
         lastName,
         phone,
-        roles,
+        roles: roles.length ? roles : [userRole?._id],
       });
 
       return res.json(new UserDTO(user));
@@ -153,6 +166,11 @@ class AdminController {
 
   async updateTag(req: Request, res: Response) {
     try {
+      const errors = validationResult(req);
+
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ message: 'Ошибка при обновлении', errors });
+      }
       const { value } = req.body;
       const { id } = req.params;
       const candidate = await TagModel.findOne({ _id: id });
@@ -198,6 +216,12 @@ class AdminController {
 
   async updateRole(req: Request, res: Response) {
     try {
+      const errors = validationResult(req);
+
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ message: 'Ошибка при обновлении', errors });
+      }
+
       const { value } = req.body;
       const { id } = req.params;
       const candidate = await RoleModel.findOne({ _id: id });

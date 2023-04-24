@@ -5,6 +5,8 @@ import jwt from 'jsonwebtoken';
 import { config } from '../config';
 import fs from 'fs';
 import { v4 } from 'uuid';
+import bcrypt from 'bcryptjs';
+import { validationResult } from 'express-validator';
 
 class UsersController {
   async getUsers(req: Request, res: Response) {
@@ -35,6 +37,79 @@ class UsersController {
     } catch (e) {
       console.log(e);
       return res.status(401).json({ message: 'Пользователь не авторизован' })
+    }
+  }
+
+  async changePassword(req: Request, res: Response) {
+    try {
+      const errors = validationResult(req);
+
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ message: 'Ошибка при смене пароля', errors });
+      }
+
+      const { password, newPassword } = req.body;
+
+      const user = (req as any).user;
+
+      const candidate = await UserModel.findOne({ email: user.email });
+
+      if (!candidate) {
+        return res.status(400).json({ message: 'Пользователь не найден' });
+      }
+
+      if (candidate.status === UserStatus.BANNED) {
+        return res.status(401).json({ message: 'Пользователь заблокирован' })
+      }
+
+      const validPassword = bcrypt.compareSync(password, candidate.password);
+
+      if (!validPassword) {
+        return res.status(400).json({ message: 'Введенны неверные параметры' });
+      }
+
+      const hashPassword = bcrypt.hashSync(newPassword, 7);
+
+      candidate.password = hashPassword;
+      await candidate.save();
+
+      return res.json({ message: 'Пароль успешно изменен!' });
+    } catch (e) {
+      console.log(e);
+      return res.status(500).json({ message: 'Server error' })
+    }
+  }
+
+  async changeInfo(req: Request, res: Response) {
+    try {
+      const errors = validationResult(req);
+
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ message: 'Ошибка при смене информации', errors });
+      }
+
+      const { firstName, lastName } = req.body;
+
+      const user = (req as any).user;
+
+      const candidate = await UserModel.findOne({ email: user.email });
+
+      if (!candidate) {
+        return res.status(400).json({ message: 'Пользователь не найден' });
+      }
+
+      if (candidate.status === UserStatus.BANNED) {
+        return res.status(401).json({ message: 'Пользователь заблокирован' })
+      }
+
+      candidate.firstName = firstName;
+      candidate.lastName = lastName;
+      await candidate.save();
+
+      return res.json({ message: 'Информация успешно изменена!' });
+    } catch (e) {
+      console.log(e);
+      return res.status(500).json({ message: 'Server error' })
     }
   }
 

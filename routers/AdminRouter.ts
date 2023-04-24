@@ -6,23 +6,115 @@ import { roleMiddleware }  from '../middleware/RoleMiddleware';
 
 const router = Router();
 
-router.post('/login',[
-  check('email', 'Имя пользователя не может быть пустым').notEmpty(),
-  check('password', 'Пароль не может быть пустым').notEmpty(),
-], AdminController.login);
-router.get('/roles', authMiddleware, roleMiddleware(['ADMIN']), AdminController.getRoles);
-router.get('/posts', authMiddleware, roleMiddleware(['ADMIN']), AdminController.getPosts);
-router.post('/users/create', authMiddleware, roleMiddleware(['ADMIN']), AdminController.createUser);
-router.get('/users', authMiddleware, roleMiddleware(['ADMIN']), AdminController.getUsers);
-router.post('/tags/create', authMiddleware, roleMiddleware(['ADMIN']), AdminController.createTag);
-router.post('/roles/create', authMiddleware, roleMiddleware(['ADMIN']), AdminController.createRole);
-router.delete('/tags/:id', authMiddleware, roleMiddleware(['ADMIN']), AdminController.deleteTag);
-router.put('/tags/:id', authMiddleware, roleMiddleware(['ADMIN']), AdminController.updateTag);
-router.delete('/roles/:id', authMiddleware, roleMiddleware(['ADMIN']), AdminController.deleteRole);
-router.put('/roles/:id', authMiddleware, roleMiddleware(['ADMIN']), AdminController.updateRole);
-router.post('/users/ban/:id', authMiddleware, roleMiddleware(['ADMIN']), AdminController.banUser);
-router.post('/users/unban/:id', authMiddleware, roleMiddleware(['ADMIN']), AdminController.unbanUser);
-router.post('/posts/ban/:id', authMiddleware, roleMiddleware(['ADMIN']), AdminController.banPost);
-router.post('/posts/unban/:id', authMiddleware, roleMiddleware(['ADMIN']), AdminController.unbanPost);
+router.post(
+  '/login',
+  [
+    check('email', 'Имя пользователя не может быть пустым').notEmpty(),
+    check('password', 'Пароль не может быть пустым').notEmpty(),
+  ],
+  AdminController.login
+);
+router.get(
+  '/roles',
+  authMiddleware,
+  roleMiddleware(['ADMIN']),
+  AdminController.getRoles
+);
+router.get(
+  '/posts',
+  authMiddleware,
+  roleMiddleware(['ADMIN']),
+  AdminController.getPosts
+);
+router.post(
+  '/users/create',
+  authMiddleware,
+  roleMiddleware(['ADMIN']),
+  [
+    check('email', 'Имя пользователя не может быть пустым').notEmpty().isEmail(),
+    check('password', 'Пароль должен быть больше 4 и меньше 30 символов').isLength({ min: 4, max: 30 }),
+    check('firstName', 'Имя не должно быть пустым').notEmpty(),
+    check('lastName', 'Фамилия не должна быть пустым').notEmpty(),
+  ],
+  AdminController.createUser
+);
+router.get(
+  '/users',
+  authMiddleware,
+  roleMiddleware(['ADMIN']),
+  AdminController.getUsers
+);
+router.post(
+  '/tags/create',
+  authMiddleware,
+  roleMiddleware(['ADMIN']),
+  [
+    check('value', 'Название не может быть пустым').notEmpty(),
+  ],
+  AdminController.createTag
+);
+router.post(
+  '/roles/create',
+  authMiddleware,
+  roleMiddleware(['ADMIN']),
+  [
+    check('value', 'Название не может быть пустым').notEmpty(),
+  ],
+  AdminController.createRole
+);
+router.delete(
+  '/tags/:id',
+  authMiddleware,
+  roleMiddleware(['ADMIN']),
+  AdminController.deleteTag
+);
+router.put(
+  '/tags/:id',
+  authMiddleware,
+  roleMiddleware(['ADMIN']),
+  [
+    check('value', 'Название не может быть пустым').notEmpty(),
+  ],
+  AdminController.updateTag
+);
+router.delete(
+  '/roles/:id',
+  authMiddleware,
+  roleMiddleware(['ADMIN']),
+  AdminController.deleteRole
+);
+router.put(
+  '/roles/:id',
+  authMiddleware,
+  roleMiddleware(['ADMIN']),
+  [
+    check('value', 'Название не может быть пустым').notEmpty(),
+  ],
+  AdminController.updateRole
+);
+router.post(
+  '/users/ban/:id',
+  authMiddleware,
+  roleMiddleware(['ADMIN']),
+  AdminController.banUser
+);
+router.post(
+  '/users/unban/:id',
+  authMiddleware,
+  roleMiddleware(['ADMIN']),
+  AdminController.unbanUser
+);
+router.post(
+  '/posts/ban/:id',
+  authMiddleware,
+  roleMiddleware(['ADMIN']),
+  AdminController.banPost
+);
+router.post(
+  '/posts/unban/:id',
+  authMiddleware,
+  roleMiddleware(['ADMIN']),
+  AdminController.unbanPost
+);
 
 export default router;

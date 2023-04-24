@@ -4,6 +4,7 @@ import PostDTO from '../dtos/PostDTO';
 import fs from 'fs';
 import { v4 } from 'uuid';
 import { getVideoDurationInSeconds } from 'get-video-duration';
+import { validationResult } from 'express-validator';
 
 class PostsController {
   async getPosts(req: Request, res: Response) {
@@ -24,6 +25,12 @@ class PostsController {
   }
 
   async createPost(req: Request, res: Response) {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ message: 'Ошибка при создании', errors });
+    }
+
     const file = (req as any).file;
 
     try {
@@ -45,8 +52,6 @@ class PostsController {
       const newFileName = `${v4()}.${fileName}.${fileExtension}`;
       const newFilePath = `videos/${newFileName}`;
       const videoUrl = `http://${req.headers.host}/videos/${newFileName}`;
-
-      console.log(videoDuration);
 
       if (videoDuration > 30) {
         fs.unlinkSync(file.path);

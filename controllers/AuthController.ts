@@ -14,7 +14,7 @@ class AuthController {
       const errors = validationResult(req);
 
       if (!errors.isEmpty()) {
-        res.status(400).json({ message: 'Ошибка при регистрации', errors });
+        return res.status(400).json({ message: 'Ошибка при регистрации', errors });
       }
 
       const { email, password, firstName, lastName } = req.body;
@@ -48,7 +48,7 @@ class AuthController {
       const errors = validationResult(req);
 
       if (!errors.isEmpty()) {
-        res.status(400).json({ message: 'Ошибка при авторизации', errors });
+        return res.status(400).json({ message: 'Ошибка при авторизации', errors });
       }
 
       const { email, password } = req.body;

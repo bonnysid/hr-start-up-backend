@@ -17,7 +17,6 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
 
     const decodedData = jwt.verify(token, config.secret);
 
-
     if ((decodedData as any).status === UserStatus.BANNED) {
       return res.status(401).json({ message: 'Пользователь заблокирован' })
     }

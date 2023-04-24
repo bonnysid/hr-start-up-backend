@@ -490,6 +490,52 @@
         }
       }
     },
+    "/users/change/password": {
+      "post": {
+        "tags": [
+          "Пользователи"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "password": "string",
+                "newPassword": "string"
+              }
+            }
+          }
+        },
+        "summary": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/users/change/info": {
+      "post": {
+        "tags": [
+          "Пользователи"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "firstName": "string",
+                "lastName": "string"
+              }
+            }
+          }
+        },
+        "summary": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/users/me": {
       "get": {
         "tags": [
