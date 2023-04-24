@@ -716,6 +716,12 @@
           "firstName": {
             "type": "string"
           },
+          "updatedAt": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
           "lastName": {
             "type": "string"
           },
@@ -801,6 +807,12 @@
         "type": "object",
         "properties": {
           "id": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "createdAt": {
             "type": "string"
           },
           "title": {
