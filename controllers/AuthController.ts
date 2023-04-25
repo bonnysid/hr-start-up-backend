@@ -28,11 +28,11 @@ class AuthController {
 
       const userRole = await RoleModel.findOne({ value: 'USER' });
 
-      const user = new UserModel({ email: email.toLowerCase(), firstName, lastName, password: hashPassword, roles: [userRole?._id] });
+      const user = await UserModel.create({ email: email.toLowerCase(), firstName, lastName, password: hashPassword, roles: [userRole?._id] });
 
       await user.save();
 
-      const userDTO = new UserDTO({ ...user, roles: [userRole] })
+      const userDTO = new UserDTO({ ...user.toObject(), roles: [userRole] })
 
       const tokens = TokenService.generateTokens({ ...userDTO });
 
