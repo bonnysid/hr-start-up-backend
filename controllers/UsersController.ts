@@ -52,7 +52,7 @@ class UsersController {
 
       const user = (req as any).user;
 
-      const candidate = await UserModel.findOne({ email: user.email }).populate('roles').exec();
+      const candidate = await UserModel.findOne({ email: user.email });
 
       if (!candidate) {
         return res.status(400).json({ message: 'Пользователь не найден' });
@@ -73,7 +73,7 @@ class UsersController {
       candidate.password = hashPassword;
       await candidate.save();
 
-      return res.json({ message: 'Пароль успешно изменен!', user: new UserDTO(candidate) });
+      return res.json({ message: 'Пароль успешно изменен!' });
     } catch (e) {
       console.log(e);
       return res.status(500).json({ message: 'Server error' })
@@ -92,7 +92,7 @@ class UsersController {
 
       const user = (req as any).user;
 
-      const candidate = await UserModel.findOne({ email: user.email });
+      const candidate = await UserModel.findOne({ email: user.email }).populate('roles').exec();
 
       if (!candidate) {
         return res.status(400).json({ message: 'Пользователь не найден' });
@@ -106,7 +106,7 @@ class UsersController {
       candidate.lastName = lastName;
       await candidate.save();
 
-      return res.json({ message: 'Информация успешно изменена!' });
+      return res.json({ message: 'Информация успешно изменена!', user: new UserDTO(candidate) });
     } catch (e) {
       console.log(e);
       return res.status(500).json({ message: 'Server error' })
