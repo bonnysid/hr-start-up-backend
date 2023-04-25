@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { check } from 'express-validator';
+import { body } from 'express-validator';
 import AdminController  from '../controllers/AdminController';
 import { authMiddleware }  from '../middleware/AuthMiddleware';
 import { roleMiddleware }  from '../middleware/RoleMiddleware';
@@ -9,8 +9,8 @@ const router = Router();
 router.post(
   '/login',
   [
-    check('email', 'Имя пользователя не может быть пустым').notEmpty(),
-    check('password', 'Пароль не может быть пустым').notEmpty(),
+    body('email', 'Имя пользователя не может быть пустым').notEmpty(),
+    body('password', 'Пароль не может быть пустым').notEmpty(),
   ],
   AdminController.login
 );
@@ -31,10 +31,10 @@ router.post(
   authMiddleware,
   roleMiddleware(['ADMIN']),
   [
-    check('email', 'Имя пользователя не может быть пустым').notEmpty().isEmail(),
-    check('password', 'Пароль должен быть больше 4 и меньше 30 символов').isLength({ min: 4, max: 30 }),
-    check('firstName', 'Имя не должно быть пустым').notEmpty(),
-    check('lastName', 'Фамилия не должна быть пустым').notEmpty(),
+    body('email', 'Имя пользователя не может быть пустым').notEmpty().isEmail(),
+    body('password', 'Пароль должен быть больше 4 и меньше 30 символов').isLength({ min: 4, max: 30 }),
+    body('firstName', 'Имя не должно быть пустым').notEmpty(),
+    body('lastName', 'Фамилия не должна быть пустым').notEmpty(),
   ],
   AdminController.createUser
 );
@@ -49,7 +49,7 @@ router.post(
   authMiddleware,
   roleMiddleware(['ADMIN']),
   [
-    check('value', 'Название не может быть пустым').notEmpty(),
+    body('value', 'Название не может быть пустым').notEmpty(),
   ],
   AdminController.createTag
 );
@@ -58,7 +58,7 @@ router.post(
   authMiddleware,
   roleMiddleware(['ADMIN']),
   [
-    check('value', 'Название не может быть пустым').notEmpty(),
+    body('value', 'Название не может быть пустым').notEmpty(),
   ],
   AdminController.createRole
 );
@@ -73,7 +73,7 @@ router.put(
   authMiddleware,
   roleMiddleware(['ADMIN']),
   [
-    check('value', 'Название не может быть пустым').notEmpty(),
+    body('value', 'Название не может быть пустым').notEmpty(),
   ],
   AdminController.updateTag
 );
@@ -88,7 +88,7 @@ router.put(
   authMiddleware,
   roleMiddleware(['ADMIN']),
   [
-    check('value', 'Название не может быть пустым').notEmpty(),
+    body('value', 'Название не может быть пустым').notEmpty(),
   ],
   AdminController.updateRole
 );

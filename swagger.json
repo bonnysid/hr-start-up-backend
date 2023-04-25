@@ -498,9 +498,8 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "example": {
-                "password": "string",
-                "newPassword": "string"
+              "schema": {
+                "$ref": "#/components/schemas/UserChangePassword"
               }
             }
           }
@@ -521,9 +520,8 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "example": {
-                "firstName": "string",
-                "lastName": "string"
+              "schema": {
+                "$ref": "#/components/schemas/UserChangeInfo"
               }
             }
           }
@@ -788,6 +786,28 @@
         "type": "object",
         "properties": {
           "value": {
+            "type": "string"
+          }
+        }
+      },
+      "UserChangeInfo": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          }
+        }
+      },
+      "UserChangePassword": {
+        "type": "object",
+        "properties": {
+          "password": {
+            "type": "string"
+          },
+          "newPassword": {
             "type": "string"
           }
         }
