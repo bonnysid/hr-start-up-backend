@@ -530,7 +530,13 @@
         "responses": {
           "200": {
             "description": "OK",
-            "$ref": ""
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserChangeInfoResponse"
+                }
+              }
+            }
           }
         }
       }
