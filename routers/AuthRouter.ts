@@ -1,16 +1,19 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
 import AuthController  from '../controllers/AuthController';
+import { required } from '../middleware/ValdiationMiddlewares';
 
 const router = Router();
 
 router.post('/registration', [
-  body('email', 'Имя пользователя не может быть пустым').notEmpty().isEmail(),
-  body('password', 'Пароль должен быть больше 4 и меньше 30 символов').isLength({ min: 4, max: 30 }),
+  required('email').isEmail(),
+  required('firstName'),
+  required('lastName'),
+  required('password').isLength({ min: 4, max: 30 }),
 ], AuthController.registration);
 router.post('/login',[
-  body('email', 'Имя пользователя не может быть пустым').notEmpty(),
-  body('password', 'Пароль не может быть пустым').notEmpty(),
+  required('email'),
+  required('password'),
 ], AuthController.login);
 router.post('/refresh', AuthController.refreshToken);
 

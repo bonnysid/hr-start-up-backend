@@ -3,14 +3,15 @@ import { body } from 'express-validator';
 import AdminController  from '../controllers/AdminController';
 import { authMiddleware }  from '../middleware/AuthMiddleware';
 import { roleMiddleware }  from '../middleware/RoleMiddleware';
+import { required } from '../middleware/ValdiationMiddlewares';
 
 const router = Router();
 
 router.post(
   '/login',
   [
-    body('email', 'Имя пользователя не может быть пустым').notEmpty(),
-    body('password', 'Пароль не может быть пустым').notEmpty(),
+    required('email'),
+    required('password'),
   ],
   AdminController.login
 );
@@ -31,10 +32,10 @@ router.post(
   authMiddleware,
   roleMiddleware(['ADMIN']),
   [
-    body('email', 'Имя пользователя не может быть пустым').notEmpty().isEmail(),
-    body('password', 'Пароль должен быть больше 4 и меньше 30 символов').isLength({ min: 4, max: 30 }),
-    body('firstName', 'Имя не должно быть пустым').notEmpty(),
-    body('lastName', 'Фамилия не должна быть пустым').notEmpty(),
+    required('email').isEmail(),
+    required('password').isLength({ min: 4, max: 30 }),
+    required('firstName'),
+    required('lastName'),
   ],
   AdminController.createUser
 );
@@ -49,7 +50,7 @@ router.post(
   authMiddleware,
   roleMiddleware(['ADMIN']),
   [
-    body('value', 'Название не может быть пустым').notEmpty(),
+    required('value'),
   ],
   AdminController.createTag
 );
@@ -58,7 +59,7 @@ router.post(
   authMiddleware,
   roleMiddleware(['ADMIN']),
   [
-    body('value', 'Название не может быть пустым').notEmpty(),
+    required('value'),
   ],
   AdminController.createRole
 );
@@ -73,7 +74,7 @@ router.put(
   authMiddleware,
   roleMiddleware(['ADMIN']),
   [
-    body('value', 'Название не может быть пустым').notEmpty(),
+    required('value'),
   ],
   AdminController.updateTag
 );
@@ -88,7 +89,7 @@ router.put(
   authMiddleware,
   roleMiddleware(['ADMIN']),
   [
-    body('value', 'Название не может быть пустым').notEmpty(),
+    required('value'),
   ],
   AdminController.updateRole
 );

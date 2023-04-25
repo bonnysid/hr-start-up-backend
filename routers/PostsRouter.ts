@@ -6,6 +6,7 @@ import multer from 'multer';
 import path from 'path';
 import { v4 } from 'uuid';
 import { body } from 'express-validator';
+import { required } from '../middleware/ValdiationMiddlewares';
 
 const router = Router();
 
@@ -17,9 +18,9 @@ router.post(
   bodyParser.urlencoded({ extended: true }),
   authMiddleware,
   [
-    body('title', 'Заголовок не может быть пустым').notEmpty(),
-    body('description', 'Описание не может быть пустым').notEmpty(),
-    body('shortDescription', 'Краткое описание не может быть пустым').notEmpty(),
+    required('title'),
+    required('description'),
+    required('shortDescription'),
   ],
   PostsController.createPost
 );

@@ -529,7 +529,8 @@
         "summary": "",
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "$ref": ""
           }
         }
       }
@@ -798,6 +799,17 @@
           },
           "lastName": {
             "type": "string"
+          }
+        }
+      },
+      "UserChangeInfoResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
           }
         }
       },
