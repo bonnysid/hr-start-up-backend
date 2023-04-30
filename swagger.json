@@ -407,6 +407,41 @@
         }
       }
     },
+    "/auth/logout": {
+      "post": {
+        "tags": [
+          "Авторизация"
+        ],
+        "summary": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/auth/logout/session": {
+      "post": {
+        "tags": [
+          "Авторизация"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LogoutSession"
+              }
+            }
+          }
+        },
+        "summary": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/users": {
       "get": {
         "tags": [
@@ -554,6 +589,29 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/sessions": {
+      "get": {
+        "tags": [
+          "Пользователи"
+        ],
+        "summary": "",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Session"
+                  }
                 }
               }
             }
@@ -723,6 +781,34 @@
         "properties": {
           "refreshToken": {
             "type": "string"
+          }
+        }
+      },
+      "LogoutSession": {
+        "type": "object",
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          }
+        }
+      },
+      "Session": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "ip": {
+            "type": "string"
+          },
+          "isCurrent": {
+            "type": "boolean"
           }
         }
       },
