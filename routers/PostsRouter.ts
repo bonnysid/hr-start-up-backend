@@ -3,9 +3,6 @@ import PostsController  from '../controllers/PostsController';
 import { authMiddleware } from '../middleware/AuthMiddleware';
 import bodyParser from 'body-parser';
 import multer from 'multer';
-import path from 'path';
-import { v4 } from 'uuid';
-import { body } from 'express-validator';
 import { required } from '../middleware/ValdiationMiddlewares';
 
 const router = Router();
@@ -25,8 +22,8 @@ router.post(
   PostsController.createPost
 );
 router.get('/', PostsController.getPosts);
+router.get('/me', authMiddleware, PostsController.getMyPosts);
 router.get('/:id', PostsController.getPost);
 router.get('/user/:userId', PostsController.getUserPosts);
-router.get('/me', authMiddleware, PostsController.getMyPosts);
 
 export default router;

@@ -27,6 +27,7 @@ class PostsController {
   async getPost(req: Request, res: Response) {
     try {
       const { id } = req.params;
+
       const post = await PostModel.findOne({ status: PostStatus.ACTIVE, _id: id }).populate([{
         path: 'user',
         populate: {

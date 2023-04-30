@@ -24,7 +24,6 @@ class PostDTO extends DefaultDTO {
     this.createdAt = model.createdAt;
     this.shortDescription = model.shortDescription;
     this.user = new UserDTO(model.user);
-    this.user = new UserDTO(model.user);
     this.tags = model.tags.map((tag: any) => new TagDTO(tag));
   }
 }
