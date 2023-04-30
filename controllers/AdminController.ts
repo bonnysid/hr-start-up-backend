@@ -84,6 +84,24 @@ class AdminController {
     }
   }
 
+  async changeUserRoles(req: Request, res: Response) {
+    try {
+      const { roles, userId } = req.body;
+      const user = await UserModel.findOne({ _id: userId });
+      if (!user) {
+        return res.status(404).json({ message: 'Пользователь не найден' })
+      }
+
+      user.roles = roles;
+      await user.save();
+
+      return res.status(200).json({ message: 'Роли пользователя успешно обновлены' })
+    } catch (e) {
+      console.log(e);
+      res.status(500).json({ message: 'Server error' })
+    }
+  }
+
   async login(req: Request, res: Response) {
     try {
       const errors = validationResult(req);

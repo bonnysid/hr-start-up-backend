@@ -27,6 +27,6 @@ router.post(
 router.get('/', PostsController.getPosts);
 router.get('/:id', PostsController.getPost);
 router.get('/user/:userId', PostsController.getUserPosts);
-router.get('/me', PostsController.getMyPosts);
+router.get('/me', authMiddleware, PostsController.getMyPosts);
 
 export default router;
