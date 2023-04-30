@@ -33,7 +33,8 @@ const User = new Schema({
     type: String,
     required: false,
     default: null,
-  }
+  },
+  sessions: [{ type: Schema.Types.ObjectId, ref: 'sessions' }],
 }, { timestamps: true });
 
 export default model('users', User);

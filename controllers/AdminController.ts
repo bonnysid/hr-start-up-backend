@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import RoleModel from '../models/Role';
+import SessionModel from '../models/Session';
 import RoleDTO from '../dtos/RoleDTO';
 import { validationResult } from 'express-validator';
 import UserModel, { UserStatus } from '../models/User';
@@ -10,6 +11,8 @@ import UserDTO from '../dtos/UserDTO';
 import TokenService from '../services/TokenService';
 import TagDTO from '../dtos/TagDTO';
 import PostDTO from '../dtos/PostDTO';
+import geo from 'geoip-lite';
+import { IPService } from '../services/IPService';
 
 class AdminController {
   async getRoles(req: Request, res: Response) {
@@ -110,6 +113,22 @@ class AdminController {
       if (!candidate.roles.map(it => it.value).includes('ADMIN')) {
         return res.status(400).json({ message: 'Введенны неверные параметры' });
       }
+
+      const ipRes = IPService.getIp(req);
+
+      if (ipRes.error) {
+        return res.status(400).json({ message: 'Введенны неверные параметры' });
+      }
+
+      const { ip, geo } = IPService.getIpInfo(ipRes.ip);
+
+      const session = new SessionModel({ ip, city: geo?.city, country: geo?.country });
+
+      await session.save();
+
+      candidate.sessions = [...candidate.sessions, session._id];
+
+      await candidate.save();
 
       const userDTO = new UserDTO(candidate);
 

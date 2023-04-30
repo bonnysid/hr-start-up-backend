@@ -24,6 +24,63 @@ class PostsController {
     }
   }
 
+  async getPost(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const post = await PostModel.findOne({ status: PostStatus.ACTIVE, _id: id }).populate([{
+        path: 'user',
+        populate: {
+          path: 'roles',
+        },
+      }, { path: 'tags' }]).exec();
+
+      if (!post) {
+        return res.status(404).json({ message: 'Пост не найден' })
+      }
+
+      return res.json(new PostDTO(post));
+    } catch (e) {
+      console.log(e);
+      return res.status(500).json({ message: 'Server error' });
+    }
+  }
+
+  async getUserPosts(req: Request, res: Response) {
+    try {
+      const { userId } = req.params;
+      const posts = await PostModel.find({ user: userId, status: PostStatus.ACTIVE }).populate([{
+        path: 'user',
+        populate: {
+          path: 'roles',
+        },
+      }, { path: 'tags' }]).exec();
+      const postsDTOS = posts.map(it => new PostDTO(it));
+
+      return res.json(postsDTOS);
+    } catch (e) {
+      console.log(e);
+      return res.status(500).json({ message: 'Server error' });
+    }
+  }
+
+  async getMyPosts(req: Request, res: Response) {
+    try {
+      const user = (req as any).user;
+      const posts = await PostModel.find({ user: user.id }).populate([{
+        path: 'user',
+        populate: {
+          path: 'roles',
+        },
+      }, { path: 'tags' }]).exec();
+      const postsDTOS = posts.map(it => new PostDTO(it));
+
+      return res.json(postsDTOS);
+    } catch (e) {
+      console.log(e);
+      return res.status(500).json({ message: 'Server error' });
+    }
+  }
+
   async createPost(req: Request, res: Response) {
     const errors = validationResult(req);
 

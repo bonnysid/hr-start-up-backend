@@ -7,6 +7,8 @@ import fs from 'fs';
 import { v4 } from 'uuid';
 import bcrypt from 'bcryptjs';
 import { validationResult } from 'express-validator';
+import SessionDTO from '../dtos/SessionDTO';
+import { IPService } from '../services/IPService';
 
 class UsersController {
   async getUsers(req: Request, res: Response) {
@@ -114,30 +116,58 @@ class UsersController {
   }
 
   async uploadAvatar(req: Request, res: Response) {
-    const file = (req as any).file;
-    const user = (req as any).user;
-    if (!file) {
-      return res.status(400).send({ message: 'Нет аватара для загрузки' });
-    }
-    const fileName = user.id;
-    const fileExtension = file.originalname.split('.').pop();
-    const newFileName = `${v4()}.${fileName}.${fileExtension}`;
-    const newFilePath = `avatars/${newFileName}`;
-    const publicUrl = `http://${req.headers.host}/avatars/${newFileName}`;
-
-    const userFromDB = await UserModel.findOne({ _id: user.id });
-
-    if (userFromDB) {
-      if (userFromDB.avatar) {
-        fs.unlinkSync(userFromDB.avatar?.replace(`http://${req.headers.host}/`, ''))
+    try {
+      const file = (req as any).file;
+      const user = (req as any).user;
+      if (!file) {
+        return res.status(400).send({ message: 'Нет аватара для загрузки' });
       }
-      userFromDB.avatar = publicUrl;
-      await userFromDB.save();
+      const fileName = user.id;
+      const fileExtension = file.originalname.split('.').pop();
+      const newFileName = `${v4()}.${fileName}.${fileExtension}`;
+      const newFilePath = `avatars/${newFileName}`;
+      const publicUrl = `http://${req.headers.host}/avatars/${newFileName}`;
+
+      const userFromDB = await UserModel.findOne({ _id: user.id });
+
+      if (userFromDB) {
+        if (userFromDB.avatar) {
+          fs.unlinkSync(userFromDB.avatar?.replace(`http://${req.headers.host}/`, ''))
+        }
+        userFromDB.avatar = publicUrl;
+        await userFromDB.save();
+      }
+
+      fs.renameSync(file.path, newFilePath);
+
+      return res.status(200).send({ message: 'Фото обновлено', url: publicUrl });
+    } catch (e) {
+      console.log(e);
+      return res.status(500).json({ message: 'Server error' })
     }
+  }
 
-    fs.renameSync(file.path, newFilePath);
+  async getSessions(req: Request, res: Response) {
+    try {
+      const user = (req as any).user;
 
-    return res.status(200).send({ message: 'Фото обновлено', url: publicUrl });
+      const candidate = await UserModel.findOne({ email: user.email }).populate('sessions').exec();
+
+      if (!candidate) {
+        return res.status(400).json({ message: 'Пользователь не найден' });
+      }
+
+      if (candidate.status === UserStatus.BANNED) {
+        return res.status(401).json({ message: 'Пользователь заблокирован' })
+      }
+
+      const ipRes = IPService.getIp(req);
+
+      return res.status(200).json(candidate.sessions.map((it: any) => new SessionDTO(it, it.ip === ipRes.ip)))
+    } catch (e) {
+      console.log(e);
+      return res.status(500).json({ message: 'Server error' })
+    }
   }
 }
 

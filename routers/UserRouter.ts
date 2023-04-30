@@ -19,6 +19,11 @@ router.get(
   authMiddleware,
   UsersController.getMe
 );
+router.get(
+  '/sessions',
+  authMiddleware,
+  UsersController.getSessions
+);
 router.post(
   '/change/password',
   authMiddleware,

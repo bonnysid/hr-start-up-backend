@@ -25,5 +25,8 @@ router.post(
   PostsController.createPost
 );
 router.get('/', PostsController.getPosts);
+router.get('/:id', PostsController.getPost);
+router.get('/user/:userId', PostsController.getUserPosts);
+router.get('/me', PostsController.getMyPosts);
 
 export default router;

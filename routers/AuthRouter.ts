@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { body } from 'express-validator';
 import AuthController  from '../controllers/AuthController';
 import { required } from '../middleware/ValdiationMiddlewares';
+import { authMiddleware } from '../middleware/AuthMiddleware';
 
 const router = Router();
 
@@ -16,5 +17,7 @@ router.post('/login',[
   required('password'),
 ], AuthController.login);
 router.post('/refresh', AuthController.refreshToken);
+router.post('/logout', authMiddleware, AuthController.logout);
+router.post('/logout/session', authMiddleware, AuthController.logoutSession);
 
 export default router;
