@@ -30,7 +30,7 @@ router.get(
 router.post(
   '/users/create',
   authMiddleware,
-  roleMiddleware(['ADMIN']),
+  roleMiddleware(['GLOBAL_ADMIN']),
   [
     required('email').isEmail(),
     required('password').isLength({ min: 4, max: 30 }),
@@ -120,7 +120,7 @@ router.post(
 router.post(
   '/users/change/roles',
   authMiddleware,
-  roleMiddleware(['ADMIN']),
+  roleMiddleware(['GLOBAL_ADMIN']),
   [
     required('userId'),
   ],
