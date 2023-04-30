@@ -87,10 +87,12 @@ class AdminController {
   async changeUserRoles(req: Request, res: Response) {
     try {
       const { roles, userId } = req.body;
+
       const user = await UserModel.findOne({ _id: userId });
       if (!user) {
         return res.status(404).json({ message: 'Пользователь не найден' })
       }
+
 
       user.roles = roles;
       await user.save();

@@ -117,5 +117,14 @@ router.post(
   roleMiddleware(['ADMIN']),
   AdminController.unbanPost
 );
+router.post(
+  '/users/change/roles',
+  authMiddleware,
+  roleMiddleware(['ADMIN']),
+  [
+    required('userId'),
+  ],
+  AdminController.changeUserRoles
+);
 
 export default router;
