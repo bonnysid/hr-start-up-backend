@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import UserModel, { UserStatus } from '../models/User';
+import SessionModel from '../models/Session';
 import UserDTO from '../dtos/UserDTO';
 import jwt from 'jsonwebtoken';
 import { config } from '../config';
@@ -72,7 +73,14 @@ class UsersController {
 
       const hashPassword = bcrypt.hashSync(newPassword, 7);
 
+      const ipRes = IPService.getIp(req);
+
+      const session = await SessionModel.findOne({ ip: ipRes.ip });
+
       candidate.password = hashPassword;
+      if (session) {
+        candidate.sessions =  [session._id]
+      }
       await candidate.save();
 
       return res.json({ message: 'Пароль успешно изменен!' });
