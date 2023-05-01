@@ -66,13 +66,13 @@ router.post(
 router.delete(
   '/tags/:id',
   authMiddleware,
-  roleMiddleware(['ADMIN']),
+  roleMiddleware(['ADMIN', 'MODERATOR']),
   AdminController.deleteTag
 );
 router.put(
   '/tags/:id',
   authMiddleware,
-  roleMiddleware(['ADMIN']),
+  roleMiddleware(['ADMIN', 'MODERATOR']),
   [
     required('value'),
   ],
