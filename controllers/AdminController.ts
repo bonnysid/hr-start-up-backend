@@ -130,7 +130,9 @@ class AdminController {
         return res.status(400).json({ message: 'Введенны неверные параметры' });
       }
 
-      if (!candidate.roles.map(it => it.value).includes('ADMIN')) {
+      const roles = candidate.roles.map(it => it.value);
+
+      if (!roles.includes('ADMIN') && !roles.includes('MODERATOR') && !roles.includes('OPERATOR')) {
         return res.status(400).json({ message: 'Введенны неверные параметры' });
       }
 
