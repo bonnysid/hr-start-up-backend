@@ -339,10 +339,14 @@ class AdminController {
     try {
       const { id } = req.params;
 
-      const user = await UserModel.findOne({ _id: id })
+      const user = await UserModel.findOne({ _id: id }).populate('roles').exec();
 
       if (!user) {
         return res.status(400).json({ message: 'Пользователь не найден' })
+      }
+
+      if (user.roles.find((role: any) => role.value === 'ADMIN')) {
+        return res.status(403).json({ message: 'У вас нет прав для бана этого пользователя!' })
       }
 
       const posts = await PostModel.find({ user: id });

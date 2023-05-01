@@ -1,10 +1,11 @@
-import e, { NextFunction, Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { config } from '../config';
 import RoleDTO from '../dtos/RoleDTO';
+import UserModel from '../models/User';
 
 const roleMiddleware = (roles: string[]) => {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
     if (req.method === 'OPTIONS') {
       next();
     }
@@ -16,11 +17,13 @@ const roleMiddleware = (roles: string[]) => {
         return res.status(401).json({message: 'Пользователь не авторизован'})
       }
 
-      const decodedData = jwt.verify(token, config.secret);
+      const decodedData: any = jwt.verify(token, config.secret);
+
+      const user = await UserModel.findOne({ _id: decodedData.id }).populate('roles').exec();
 
       let hasRole = false;
 
-      (decodedData as any).roles.forEach((role: RoleDTO) => {
+      (user as any).roles.forEach((role: RoleDTO) => {
         if (roles.includes(role.value)) {
           hasRole = true;
         }

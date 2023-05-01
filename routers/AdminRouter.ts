@@ -18,19 +18,19 @@ router.post(
 router.get(
   '/roles',
   authMiddleware,
-  roleMiddleware(['ADMIN']),
+  roleMiddleware(['ADMIN', 'MODERATOR']),
   AdminController.getRoles
 );
 router.get(
   '/posts',
   authMiddleware,
-  roleMiddleware(['ADMIN']),
+  roleMiddleware(['ADMIN', 'MODERATOR']),
   AdminController.getPosts
 );
 router.post(
   '/users/create',
   authMiddleware,
-  roleMiddleware(['GLOBAL_ADMIN']),
+  roleMiddleware(['ADMIN']),
   [
     required('email').isEmail(),
     required('password').isLength({ min: 4, max: 30 }),
@@ -42,13 +42,13 @@ router.post(
 router.get(
   '/users',
   authMiddleware,
-  roleMiddleware(['ADMIN']),
+  roleMiddleware(['ADMIN', 'MODERATOR']),
   AdminController.getUsers
 );
 router.post(
   '/tags/create',
   authMiddleware,
-  roleMiddleware(['ADMIN']),
+  roleMiddleware(['ADMIN', 'MODERATOR']),
   [
     required('value'),
   ],
@@ -96,31 +96,31 @@ router.put(
 router.post(
   '/users/ban/:id',
   authMiddleware,
-  roleMiddleware(['ADMIN']),
+  roleMiddleware(['ADMIN', 'MODERATOR']),
   AdminController.banUser
 );
 router.post(
   '/users/unban/:id',
   authMiddleware,
-  roleMiddleware(['ADMIN']),
+  roleMiddleware(['ADMIN', 'MODERATOR']),
   AdminController.unbanUser
 );
 router.post(
   '/posts/ban/:id',
   authMiddleware,
-  roleMiddleware(['ADMIN']),
+  roleMiddleware(['ADMIN', 'MODERATOR']),
   AdminController.banPost
 );
 router.post(
   '/posts/unban/:id',
   authMiddleware,
-  roleMiddleware(['ADMIN']),
+  roleMiddleware(['ADMIN', 'MODERATOR']),
   AdminController.unbanPost
 );
 router.post(
   '/users/change/roles',
   authMiddleware,
-  roleMiddleware(['GLOBAL_ADMIN']),
+  roleMiddleware(['ADMIN']),
   [
     required('userId'),
   ],
