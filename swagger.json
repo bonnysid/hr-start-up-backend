@@ -706,6 +706,17 @@
             }
           }
         }
+      },
+      "delete": {
+        "tags": [
+          "Посты"
+        ],
+        "summary": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
       }
     },
     "/posts/favorite/{id}": {
