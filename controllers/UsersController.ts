@@ -14,8 +14,14 @@ import { IPService } from '../services/IPService';
 class UsersController {
   async getUsers(req: Request, res: Response) {
     try {
+      const {
+        search = '',
+      } = req.query;
       const user = (req as any).user
-      const users = await UserModel.find({ email: { $not: new RegExp(user.email)  }, status: { $not: new RegExp(UserStatus.BANNED) } }).populate('roles').exec();
+      const users = await UserModel.find({ $and: [
+          { email: { $not: new RegExp(user.email) } },
+          { email: new RegExp(String(search), 'i') },
+        ], status: { $not: new RegExp(UserStatus.BANNED) } }).populate('roles').exec();
       const userDTOS = users.map(it => new UserDTO(it));
 
       return res.json(userDTOS);

@@ -9,7 +9,17 @@ import { validationResult } from 'express-validator';
 class PostsController {
   async getPosts(req: Request, res: Response) {
     try {
-      const posts = await PostModel.find({ status: PostStatus.ACTIVE }).populate([{
+      const {
+        search = '',
+        tags,
+      } = req.query;
+      const user = (req as any).user;
+      const posts = await PostModel.find({
+        status: PostStatus.ACTIVE,
+        user: { $not: new RegExp(user.id) },
+        title: new RegExp(String(search), 'i') ,
+        ...(tags ? { tags: { $in: tags } } : {}),
+      }).sort({ createdAt: 'desc' }).populate([{
         path: 'user',
         populate: {
           path: 'roles',
@@ -18,6 +28,80 @@ class PostsController {
       const postsDTOS = posts.map(it => new PostDTO(it));
 
       return res.json(postsDTOS);
+    } catch (e) {
+      console.log(e);
+      return res.status(500).json({ message: 'Server error' });
+    }
+  }
+
+  async getFavoritePosts(req: Request, res: Response) {
+    try {
+      const { user } = req as any;
+
+      const post = await PostModel.findOne({
+        status: PostStatus.ACTIVE,
+        user: { $not: new RegExp(user.id) },
+        favoriteUsers: user.id,
+      }).populate([{
+        path: 'user',
+        populate: {
+          path: 'roles',
+        },
+      }, { path: 'tags' }]).exec();
+
+      if (!post) {
+        return res.status(404).json({ message: 'Пост не найден' })
+      }
+
+      return res.json(new PostDTO(post));
+    } catch (e) {
+      console.log(e);
+      return res.status(500).json({ message: 'Server error' });
+    }
+  }
+
+  async favoritePost(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const { user } = req as any;
+
+      const post = await PostModel.findOne({
+        status: PostStatus.ACTIVE,
+        _id: id,
+      });
+
+      if (!post) {
+        return res.status(404).json({ message: 'Пост не найден' })
+      }
+
+      post.favoriteUsers = [...post.favoriteUsers, user.id];
+      await post.save();
+
+      return res.json({ message: 'Пост успешно добавлен в избранное' });
+    } catch (e) {
+      console.log(e);
+      return res.status(500).json({ message: 'Server error' });
+    }
+  }
+
+  async unFavoritePost(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const { user } = req as any;
+
+      const post = await PostModel.findOne({
+        status: PostStatus.ACTIVE,
+        _id: id,
+      });
+
+      if (!post) {
+        return res.status(404).json({ message: 'Пост не найден' })
+      }
+
+      post.favoriteUsers = post.favoriteUsers.filter(it => it !== user.id);
+      await post.save();
+
+      return res.json({ message: 'Пост успешно убран из избранного' });
     } catch (e) {
       console.log(e);
       return res.status(500).json({ message: 'Server error' });
@@ -40,6 +124,25 @@ class PostsController {
       }
 
       return res.json(new PostDTO(post));
+    } catch (e) {
+      console.log(e);
+      return res.status(500).json({ message: 'Server error' });
+    }
+  }
+
+  async deletePost(req: Request, res: Response) {
+    try {
+      const user = (req as any).user;
+      const { id } = req.params;
+      const post = await PostModel.findOne({ _id: id, user: user.id });
+
+      if (!post) {
+        return res.status(400).json({message: 'Пост не найден'})
+      }
+
+      await post.remove();
+
+      return res.json({ message: 'Пост успешно удален' });
     } catch (e) {
       console.log(e);
       return res.status(500).json({ message: 'Server error' });

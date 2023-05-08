@@ -9,6 +9,7 @@ const Post = new Schema({
   title: {
     type: String,
     required: true,
+    index: true,
   },
   description: {
     type: String,
@@ -27,6 +28,7 @@ const Post = new Schema({
   },
   tags: [{ type: Schema.Types.ObjectId, ref: 'tags' }],
   user: { type: Schema.Types.ObjectId, ref: 'users' },
+  favoriteUsers: [{ type: Schema.Types.ObjectId, ref: 'users' }],
 }, { timestamps: true });
 
 export default model('posts', Post);

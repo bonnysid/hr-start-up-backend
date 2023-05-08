@@ -309,8 +309,20 @@ class AdminController {
 
   async getUsers(req: Request, res: Response) {
     try {
+      const {
+        search = '',
+        roles,
+        status,
+      } = req.query;
       const user = (req as any).user
-      const users = await UserModel.find({ email: { $not: new RegExp(user.email)  } }).populate('roles').exec();
+      const users = await UserModel.find({
+        $and: [
+          { email: { $not: new RegExp(user.email) } },
+          { email: new RegExp(String(search), 'i') },
+        ],
+        ...(roles ? { roles: { $in: roles } } : {}),
+        ...(status ? { status } : {}),
+      }).populate('roles').exec();
       const userDTOS = users.map(it => new UserDTO(it));
 
       return res.json(userDTOS);
@@ -322,7 +334,19 @@ class AdminController {
 
   async getPosts(req: Request, res: Response) {
     try {
-      const posts = await PostModel.find().populate([{
+      const {
+        search = '',
+        tags,
+        users,
+        status,
+      } = req.query;
+
+      const posts = await PostModel.find({
+        title: new RegExp(String(search), 'i'),
+        ...(tags ? { tags: { $in: tags } } : {}),
+        ...(users ? { user: users } : {}),
+        ...(status ? { status } : {}),
+      }).sort({ createdAt: 'desc' }).populate([{
         path: 'user',
         populate: {
           path: 'roles',

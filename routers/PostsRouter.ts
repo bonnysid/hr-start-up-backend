@@ -25,5 +25,9 @@ router.get('/', PostsController.getPosts);
 router.get('/me', authMiddleware, PostsController.getMyPosts);
 router.get('/:id', PostsController.getPost);
 router.get('/user/:userId', PostsController.getUserPosts);
+router.delete('/delete/:id', authMiddleware, PostsController.deletePost);
+router.get('/favorites', authMiddleware, PostsController.getFavoritePosts);
+router.post('/favorite/:id', authMiddleware, PostsController.favoritePost);
+router.post('/unfavorite/:id', authMiddleware, PostsController.unFavoritePost);
 
 export default router;
