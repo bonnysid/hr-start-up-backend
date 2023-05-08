@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { Schema } from 'mongoose';
 import PostModel, { PostStatus } from '../models/Post';
 import PostDTO from '../dtos/PostDTO';
 import fs from 'fs';
@@ -18,6 +19,7 @@ class PostsController {
         status: PostStatus.ACTIVE,
         user: { $ne: user.id },
         title: new RegExp(String(search), 'i'),
+        favoriteUsers: { $ne: user.id },
         ...(tags ? { tags: { $in: tags } } : {}),
       }).sort({ createdAt: 'desc' }).populate([{
         path: 'user',
@@ -38,7 +40,7 @@ class PostsController {
     try {
       const { user } = req as any;
 
-      const post = await PostModel.findOne({
+      const posts = await PostModel.find({
         status: PostStatus.ACTIVE,
         user: { $ne: user.id },
         favoriteUsers: user.id,
@@ -49,11 +51,7 @@ class PostsController {
         },
       }, { path: 'tags' }]).exec();
 
-      if (!post) {
-        return res.status(404).json({ message: 'Пост не найден' })
-      }
-
-      return res.json(new PostDTO(post));
+      return res.json(posts.map(it => new PostDTO(it)));
     } catch (e) {
       console.log(e);
       return res.status(500).json({ message: 'Server error' });
@@ -75,8 +73,12 @@ class PostsController {
         return res.status(404).json({ message: 'Пост не найден' })
       }
 
-      post.favoriteUsers = [...post.favoriteUsers, user.id];
-      await post.save();
+      if (!post.favoriteUsers.map(it => it.toString()).includes(user.id)) {
+        post.favoriteUsers = [...post.favoriteUsers, user.id];
+        await post.save();
+      } else {
+        return res.status(400).json({ message: 'Пост уже в избранном' })
+      }
 
       return res.json({ message: 'Пост успешно добавлен в избранное' });
     } catch (e) {
@@ -99,7 +101,7 @@ class PostsController {
         return res.status(404).json({ message: 'Пост не найден' })
       }
 
-      post.favoriteUsers = post.favoriteUsers.filter(it => it !== user.id);
+      post.favoriteUsers = post.favoriteUsers.filter(it => it.toString() !== user.id);
       await post.save();
 
       return res.json({ message: 'Пост успешно убран из избранного' });
