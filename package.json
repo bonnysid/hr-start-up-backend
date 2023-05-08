@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "nodemon index.ts",
     "start": "node ./build/index.js",
-    "build": "npx tsc"
+    "build": "npx tsc",
+    "update": "pm2 stop ./build/index.js && git pull && npm i && npm run build && pm2 start ./build/index.js"
   },
   "repository": {
     "type": "git",
