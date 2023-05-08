@@ -140,6 +140,10 @@ class PostsController {
         return res.status(400).json({message: 'Пост не найден'})
       }
 
+      if (post.videoUrl) {
+        fs.unlinkSync(post.videoUrl?.replace(`http://${req.headers.host}/`, ''))
+      }
+
       await post.remove();
 
       return res.json({ message: 'Пост успешно удален' });
