@@ -16,8 +16,8 @@ class PostsController {
       const user = (req as any).user;
       const posts = await PostModel.find({
         status: PostStatus.ACTIVE,
-        user: { $not: new RegExp(user.id) },
-        title: new RegExp(String(search), 'i') ,
+        user: { $ne: user.id },
+        title: new RegExp(String(search), 'i'),
         ...(tags ? { tags: { $in: tags } } : {}),
       }).sort({ createdAt: 'desc' }).populate([{
         path: 'user',
@@ -40,7 +40,7 @@ class PostsController {
 
       const post = await PostModel.findOne({
         status: PostStatus.ACTIVE,
-        user: { $not: new RegExp(user.id) },
+        user: { $ne: user.id },
         favoriteUsers: user.id,
       }).populate([{
         path: 'user',
@@ -68,6 +68,7 @@ class PostsController {
       const post = await PostModel.findOne({
         status: PostStatus.ACTIVE,
         _id: id,
+        user: { $ne: user.id },
       });
 
       if (!post) {
