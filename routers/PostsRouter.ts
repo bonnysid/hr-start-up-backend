@@ -30,7 +30,7 @@ router.delete('/:id', authMiddleware, PostsController.deletePost);
 router.post('/favorite/:id', authMiddleware, PostsController.favoritePost);
 router.post('/unfavorite/:id', authMiddleware, PostsController.unFavoritePost);
 router.post('/comment', authMiddleware, PostsController.addCommentToPost);
-router.post('/comment/:id', authMiddleware, PostsController.editComment);
+router.put('/comment/:id', authMiddleware, PostsController.editComment);
 router.delete('/comment/:id', authMiddleware, PostsController.removeComment);
 
 export default router;
