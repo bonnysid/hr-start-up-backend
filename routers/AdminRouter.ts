@@ -22,6 +22,12 @@ router.get(
   AdminController.getRoles
 );
 router.get(
+  '/posts/:id',
+  authMiddleware,
+  roleMiddleware(['ADMIN', 'MODERATOR']),
+  AdminController.getPost
+);
+router.get(
   '/posts',
   authMiddleware,
   roleMiddleware(['ADMIN', 'MODERATOR']),

@@ -10,7 +10,7 @@ import bcrypt from 'bcryptjs';
 import UserDTO from '../dtos/UserDTO';
 import TokenService from '../services/TokenService';
 import TagDTO from '../dtos/TagDTO';
-import PostDTO from '../dtos/PostDTO';
+import PostDTO, { PostDetailDTO, PostListItemDTO } from '../dtos/PostDTO';
 import geo from 'geoip-lite';
 import { IPService } from '../services/IPService';
 
@@ -332,6 +332,40 @@ class AdminController {
     }
   }
 
+  async getPost(req: Request, res: Response) {
+    try {
+      const {id} = req.params;
+
+      const post = await PostModel.findOne({ _id: id}).populate([
+        {
+          path: 'user',
+          populate: {
+            path: 'roles',
+          },
+        },
+        { path: 'tags' },
+        {
+          path: 'comments',
+          populate: {
+            path: 'user',
+          },
+        }
+      ]).exec();
+
+      if (!post) {
+        return res.status(404).json({message: 'Пост не найден'})
+      }
+
+      post.views += 1;
+      await post.save();
+
+      return res.json(new PostDetailDTO(post));
+    } catch (e) {
+      console.log(e);
+      return res.status(500).json({message: 'Server error'});
+    }
+  }
+
   async getPosts(req: Request, res: Response) {
     try {
       const {
@@ -353,7 +387,7 @@ class AdminController {
         },
       }, { path: 'tags' }]).exec();
 
-      const postsDTOS = posts.map(it => new PostDTO(it));
+      const postsDTOS = posts.map(it => new PostListItemDTO(it));
       return res.json(postsDTOS);
     } catch (e) {
       console.log(e);

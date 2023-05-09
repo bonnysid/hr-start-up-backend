@@ -2,7 +2,6 @@ import { Router } from 'express';
 import UsersController  from '../controllers/UsersController';
 import { authMiddleware }  from '../middleware/AuthMiddleware';
 import multer from 'multer';
-import { body } from 'express-validator';
 import { required } from '../middleware/ValdiationMiddlewares';
 
 const upload = multer({ dest: 'avatars/' });
@@ -23,6 +22,11 @@ router.get(
   '/sessions',
   authMiddleware,
   UsersController.getSessions
+);
+router.get(
+  '/:id',
+  authMiddleware,
+  UsersController.getUser
 );
 router.post(
   '/change/password',

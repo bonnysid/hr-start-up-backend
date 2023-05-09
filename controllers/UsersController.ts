@@ -30,6 +30,24 @@ class UsersController {
       res.status(400).json({ message: 'Users error' })
     }
   }
+
+  async getUser(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+
+      const user = await UserModel.findOne({ _id: id, status: { $not: UserStatus.BANNED } }).populate('roles').exec();
+
+      if (!user) {
+        return res.status(400).json({ message: 'Пользователь не найден' })
+      }
+
+      return res.json(new UserDTO(user));
+    } catch (e) {
+      console.log(e);
+      return res.status(401).json({ message: 'Пользователь не авторизован' })
+    }
+  }
+
   async getMe(req: Request, res: Response) {
     try {
       const token = req.headers.authorization?.split(' ')[1];
