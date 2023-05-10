@@ -40,7 +40,7 @@ export class PostListItemDTO extends PostDTO {
   constructor(model: any) {
     super(model);
     this.commentsCount = model.comments?.length || 0;
-    this.isFavorite = model.favoriteUsers?.includes(this.id) || false;
+    this.isFavorite = model.favoriteUsers?.map((it: any) => it.toString()).includes(this.id.toString()) || false;
   }
 }
 
