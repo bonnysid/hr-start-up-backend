@@ -24,7 +24,7 @@ router.post(
 router.get('/', authMiddleware, PostsController.getPosts);
 router.get('/me', authMiddleware, PostsController.getMyPosts);
 router.get('/favorites', authMiddleware, PostsController.getFavoritePosts);
-router.get('/:id', PostsController.getPost);
+router.get('/:id', authMiddleware, PostsController.getPost);
 router.get('/user/:userId', PostsController.getUserPosts);
 router.delete('/:id', authMiddleware, PostsController.deletePost);
 router.post('/favorite/:id', authMiddleware, PostsController.favoritePost);
