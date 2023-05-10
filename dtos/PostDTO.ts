@@ -35,10 +35,12 @@ class PostDTO extends DefaultDTO {
 
 export class PostListItemDTO extends PostDTO {
   commentsCount: number;
+  isFavorite: boolean;
 
   constructor(model: any) {
     super(model);
     this.commentsCount = model.comments?.length || 0;
+    this.isFavorite = model.favoriteUsers?.contains(this.id) || false;
   }
 }
 

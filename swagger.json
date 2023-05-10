@@ -596,6 +596,26 @@
         }
       }
     },
+    "/users/{id}": {
+      "get": {
+        "tags": [
+          "Пользователи"
+        ],
+        "summary": "",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/users/sessions": {
       "get": {
         "tags": [
@@ -656,7 +676,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/Post"
+                    "$ref": "#/components/schemas/PostList"
                   }
                 }
               }
