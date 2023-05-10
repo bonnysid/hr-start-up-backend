@@ -208,7 +208,7 @@ class PostsController {
       const {id} = req.params;
       const {user} = req as any;
 
-      const post = await PostModel.findOne({comments: [id]});
+      const post = await PostModel.findOne({comments: id});
 
       if (!post) {
         return res.status(400).json({message: 'Пост не найден'})
