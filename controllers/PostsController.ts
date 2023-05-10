@@ -220,7 +220,7 @@ class PostsController {
         return res.status(400).json({message: 'Комментарий не найден'})
       }
 
-      if (comment.user.toString() !== user.id || post.user.toString() !== user.id) {
+      if (comment.user.toString() !== user.id) {
         return res.status(403).json({message: 'У вас не прав удалить этот комментарий'})
       }
 
