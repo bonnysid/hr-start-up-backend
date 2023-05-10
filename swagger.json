@@ -1207,6 +1207,9 @@
           "updatedAt": {
             "type": "string"
           },
+          "isFavorite": {
+            "type": "boolean"
+          },
           "createdAt": {
             "type": "string"
           },
@@ -1268,6 +1271,9 @@
           },
           "description": {
             "type": "string"
+          },
+          "isFavorite": {
+            "type": "boolean"
           },
           "views": {
             "type": "number"
