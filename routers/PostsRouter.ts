@@ -29,8 +29,22 @@ router.get('/user/:userId', PostsController.getUserPosts);
 router.delete('/:id', authMiddleware, PostsController.deletePost);
 router.post('/favorite/:id', authMiddleware, PostsController.favoritePost);
 router.post('/unfavorite/:id', authMiddleware, PostsController.unFavoritePost);
-router.post('/comment', authMiddleware, PostsController.addCommentToPost);
-router.put('/comment/:id', authMiddleware, PostsController.editComment);
+router.post(
+  '/comment',
+  authMiddleware,
+  [
+    required('text'),
+  ],
+  PostsController.addCommentToPost
+);
+router.put(
+  '/comment/:id',
+  authMiddleware,
+  [
+    required('text'),
+  ],
+  PostsController.editComment
+);
 router.delete('/comment/:id', authMiddleware, PostsController.removeComment);
 
 export default router;
