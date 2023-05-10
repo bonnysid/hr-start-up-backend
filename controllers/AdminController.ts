@@ -359,7 +359,7 @@ class AdminController {
       post.views += 1;
       await post.save();
 
-      return res.json(new PostDetailDTO(post));
+      return res.json(new PostDetailDTO(post, (req as any).user));
     } catch (e) {
       console.log(e);
       return res.status(500).json({message: 'Server error'});
@@ -387,7 +387,7 @@ class AdminController {
         },
       }, { path: 'tags' }]).exec();
 
-      const postsDTOS = posts.map(it => new PostListItemDTO(it));
+      const postsDTOS = posts.map(it => new PostListItemDTO(it, (req as any).user));
       return res.json(postsDTOS);
     } catch (e) {
       console.log(e);

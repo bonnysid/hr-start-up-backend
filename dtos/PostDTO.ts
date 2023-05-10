@@ -37,18 +37,18 @@ export class PostListItemDTO extends PostDTO {
   commentsCount: number;
   isFavorite: boolean;
 
-  constructor(model: any) {
+  constructor(model: any, user: any) {
     super(model);
     this.commentsCount = model.comments?.length || 0;
-    this.isFavorite = model.favoriteUsers?.map((it: any) => it.toString()).includes(this.id.toString()) || false;
+    this.isFavorite = model.favoriteUsers?.map((it: any) => it.toString()).includes(user.id) || false;
   }
 }
 
 export class PostDetailDTO extends PostListItemDTO {
   comments: CommentDTO[];
 
-  constructor(model: any) {
-    super(model);
+  constructor(model: any, user: any) {
+    super(model, user);
     this.comments = model.comments.map((it: any) => new CommentDTO(it));
   }
 }
