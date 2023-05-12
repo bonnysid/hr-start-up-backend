@@ -40,9 +40,11 @@ class PostsController {
   async getFavoritePosts(req: Request, res: Response) {
     try {
       const {user} = req as any;
+      const { search = '' } = req.params;
 
       const posts = await PostModel.find({
         status: PostStatus.ACTIVE,
+        title: new RegExp(String(search), 'i'),
         user: {$ne: user.id},
         favoriteUsers: user.id,
       }).populate([{
