@@ -373,14 +373,18 @@ class AdminController {
         tags,
         users,
         status,
+        sort = 'createdAt',
+        sortValue = 'desc',
       } = req.query;
+
+      const sortValueParsed = sortValue === 'desc' ? 'desc' : 'asc';
 
       const posts = await PostModel.find({
         title: new RegExp(String(search), 'i'),
         ...(tags ? { tags: { $in: tags } } : {}),
         ...(users ? { user: users } : {}),
         ...(status ? { status } : {}),
-      }).sort({ createdAt: 'desc' }).populate([{
+      }).sort({ [String(sort)]: sortValueParsed }).populate([{
         path: 'user',
         populate: {
           path: 'roles',

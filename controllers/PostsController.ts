@@ -14,7 +14,12 @@ class PostsController {
       const {
         search = '',
         tags,
+        sort = 'createdAt',
+        sortValue = 'desc',
       } = req.query;
+
+      const sortValueParsed = sortValue === 'desc' ? 'desc' : 'asc';
+
       const user = (req as any).user;
       const posts = await PostModel.find({
         status: PostStatus.ACTIVE,
@@ -22,7 +27,7 @@ class PostsController {
         title: new RegExp(String(search), 'i'),
         favoriteUsers: {$ne: user.id},
         ...(tags ? {tags: {$in: tags}} : {}),
-      }).sort({createdAt: 'desc'}).populate([{
+      }).sort({[String(sort)]: sortValueParsed}).populate([{
         path: 'user',
         populate: {
           path: 'roles',
