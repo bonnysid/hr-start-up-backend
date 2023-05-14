@@ -45,14 +45,22 @@ class PostsController {
   async getFavoritePosts(req: Request, res: Response) {
     try {
       const {user} = req as any;
-      const { search = '' } = req.params;
+      const {
+        search = '',
+        tags,
+        sort = 'createdAt',
+        sortValue = 'desc',
+      } = req.query;
+
+      const sortValueParsed = sortValue === 'desc' ? 'desc' : 'asc';
 
       const posts = await PostModel.find({
         status: PostStatus.ACTIVE,
         title: new RegExp(String(search), 'i'),
         user: {$ne: user.id},
         favoriteUsers: user.id,
-      }).populate([{
+        ...(tags ? {tags: {$in: tags}} : {}),
+      }).sort({[String(sort)]: sortValueParsed}).populate([{
         path: 'user',
         populate: {
           path: 'roles',
@@ -268,7 +276,21 @@ class PostsController {
   async getUserPosts(req: Request, res: Response) {
     try {
       const {userId} = req.params;
-      const posts = await PostModel.find({user: userId, status: PostStatus.ACTIVE}).populate([{
+      const {
+        search = '',
+        tags,
+        sort = 'createdAt',
+        sortValue = 'desc',
+      } = req.query;
+
+      const sortValueParsed = sortValue === 'desc' ? 'desc' : 'asc';
+
+      const posts = await PostModel.find({
+        user: userId,
+        status: PostStatus.ACTIVE,
+        title: new RegExp(String(search), 'i'),
+        ...(tags ? {tags: {$in: tags}} : {}),
+      }).sort({[String(sort)]: sortValueParsed}).populate([{
         path: 'user',
         populate: {
           path: 'roles',
@@ -286,7 +308,19 @@ class PostsController {
   async getMyPosts(req: Request, res: Response) {
     try {
       const user = (req as any).user;
-      const posts = await PostModel.find({user: user.id}).populate([{
+      const {
+        search = '',
+        tags,
+        sort = 'createdAt',
+        sortValue = 'desc',
+      } = req.query;
+
+      const sortValueParsed = sortValue === 'desc' ? 'desc' : 'asc';
+      const posts = await PostModel.find({
+        user: user.id,
+        title: new RegExp(String(search), 'i'),
+        ...(tags ? {tags: {$in: tags}} : {}),
+      }).sort({[String(sort)]: sortValueParsed}).populate([{
         path: 'user',
         populate: {
           path: 'roles',
