@@ -25,6 +25,9 @@
       "name": "Пользователи"
     },
     {
+      "name": "Диалоги"
+    },
+    {
       "name": "Посты"
     }
   ],
@@ -853,7 +856,85 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/Post"
+                    "$ref": "#/components/schemas/PostList"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dialogs": {
+      "get": {
+        "tags": [
+          "Диалоги"
+        ],
+        "summary": "",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DialogListItem"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dialogs/{id}": {
+      "get": {
+        "tags": [
+          "Диалоги"
+        ],
+        "summary": "",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DialogInfo"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dialogs/create": {
+      "post": {
+        "tags": [
+          "Диалоги"
+        ],
+        "summary": "",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDialog"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DialogInfo"
                   }
                 }
               }
@@ -876,7 +957,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/Post"
+                    "$ref": "#/components/schemas/PostList"
                   }
                 }
               }
@@ -985,6 +1066,17 @@
             }
           },
           "password": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateDialog": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "userId": {
             "type": "string"
           }
         }
@@ -1250,6 +1342,69 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/Comment"
+            }
+          }
+        }
+      },
+      "Message": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "dialogId": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "read": {
+            "type": "boolean"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserComment"
+          }
+        }
+      },
+      "DialogListItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserComment"
+          },
+          "lastMessage": {
+            "$ref": "#/components/schemas/Message"
+          },
+          "unreadableMessages": {
+            "type": "number"
+          }
+        }
+      },
+      "DialogInfo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "users": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserComment"
+            }
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Message"
             }
           }
         }
