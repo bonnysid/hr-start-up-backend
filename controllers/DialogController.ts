@@ -136,7 +136,7 @@ class DialogController {
 
         await dialog.save();
 
-        implementDialogIdIF(dialog._id.toString(), user.id, JSON.stringify({
+        await implementDialogIdIF(dialog._id.toString(), user.id, JSON.stringify({
           ...message.toObject(),
           user,
           dialogId: dialog._id.toString()
