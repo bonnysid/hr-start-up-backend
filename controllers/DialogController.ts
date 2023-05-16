@@ -33,7 +33,7 @@ class DialogController {
       throw WSError.badRequest('Диалог не найден');
     }
 
-    const dbMessage = await Message.create({ text, user: user.id, event });
+    const dbMessage = await Message.create({ text, user: user.id, event, read: false });
 
     dialog.messages = [...(dialog.messages || []), dbMessage._id];
     await dialog.save();
@@ -77,14 +77,15 @@ class DialogController {
           path: 'user'
         }
       }, { path: 'users' }]).exec();
-
       return res.json(
         (dialogs || [])
           .map(it => new DialogListDTO({
             ...it.toObject(),
             user: it.users.find(it => it._id.toString() !== user.id),
             lastMessage: it.messages[it.messages.length - 1],
-            unreadableMessages: it.messages.filter((it: any) => !it.read && it.user._id.toString() !== user.id).length,
+            unreadableMessages: it.messages.filter((it: any) => {
+              return !it.read && it.user._id.toString() !== user.id
+            }).length,
           }))
           .sort((a, b) => Date.parse(b.lastMessage?.updatedAt || '') - Date.parse(a.lastMessage?.updatedAt || ''))
       );
@@ -137,7 +138,7 @@ class DialogController {
 
       await dialog.save();
 
-      const message = await Message.create({ text, user: user.id, event: MessageEvents.MESSAGE });
+      const message = await Message.create({ text, user: user.id, event: MessageEvents.MESSAGE, read: false });
 
       dialog.messages = [message._id];
 
