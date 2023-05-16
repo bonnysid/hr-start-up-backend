@@ -79,13 +79,17 @@ class AuthController {
 
       const { ip, geo } = IPService.getIpInfo(ipRes.ip);
 
-      const session = new SessionModel({ ip, city: geo?.city, country: geo?.country });
+      const candidateSession = await SessionModel.findOne({ ip });
 
-      await session.save();
+      if (!candidateSession || !candidate.sessions.map(it => it.toString()).includes(candidateSession._id.toString())) {
+        const session = new SessionModel({ ip, city: geo?.city, country: geo?.country });
 
-      candidate.sessions = [...candidate.sessions, session._id];
+        await session.save();
 
-      await candidate.save();
+        candidate.sessions = [...candidate.sessions, session._id];
+
+        await candidate.save();
+      }
 
       const userDTO = new UserDTO(candidate)
 
