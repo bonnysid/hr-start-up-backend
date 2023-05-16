@@ -55,7 +55,7 @@ class AuthController {
 
       const { email, password } = req.body;
 
-      const candidate = await UserModel.findOne({ email: email.toLowerCase(), }).populate('roles').exec();
+      const candidate = await UserModel.findOne({ email: email.toLowerCase() }).populate('roles').exec();
 
       if (!candidate) {
         return res.status(400).json({ message: 'Введенны неверные параметры' });

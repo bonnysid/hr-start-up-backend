@@ -6,13 +6,13 @@ import * as WebSocket from 'ws';
 import Dialog from '../models/Dialog';
 import WSError from '../errors/WSError';
 import UserDTO from '../dtos/UserDTO';
+import Message from '../models/Message';
 
 export enum MessageEvents {
   CONNECTION = 'connection',
   MESSAGE = 'message',
-  CREATE_DIALOG = 'createDialog',
+  READ_MESSAGE = 'readMessage',
   ERROR = 'error',
-  NOTIFY = 'notify'
 }
 
 export interface IMessageWithoutId {
@@ -24,6 +24,10 @@ export interface IMessageWithoutId {
 export interface IBaseMessage {
   token: string;
   event: MessageEvents;
+}
+
+export interface IReadMessageDTO extends IBaseMessage {
+  messageId: string;
 }
 
 export interface ISocket {
@@ -73,9 +77,14 @@ export const implementDialogIdIF = async (dialogId: string, currentUserId: strin
 
   if (secondUser) {
     let client: any;
+    let currentClient: any;
     wss.clients.forEach((it: any) => {
       if (it.id === secondUser) {
         client = it;
+      }
+
+      if (it.id === currentUserId) {
+        currentClient = it;
       }
     });
 
@@ -83,8 +92,18 @@ export const implementDialogIdIF = async (dialogId: string, currentUserId: strin
       client.dialogs = [...(client.dialogs || []), dialogId];
       client.send(message)
     }
+    if (currentClient && currentClient) {
+      currentClient.dialogs = [...(currentClient.dialogs || []), dialogId];
+    }
   }
 }
+
+const readMessage = async (data: IReadMessageDTO) => {
+  await Message.findByIdAndUpdate(data.messageId, {
+    read: true,
+  });
+}
+
 
 wss.on('connection', async (ws: WebSocket & ISocket) => {
   ws.on('error', console.error);
@@ -108,6 +127,10 @@ wss.on('connection', async (ws: WebSocket & ISocket) => {
           const ids = await getDialogsIds(ws.id);
           ws.dialogs = ids || [];
           broadCastMessage(ws.id, { text: 'Success' })
+          break;
+        case MessageEvents.READ_MESSAGE:
+          dataMessage = JSON.parse(message) as IReadMessageDTO;
+          await readMessage(dataMessage)
           break;
       }
     } catch (e) {
