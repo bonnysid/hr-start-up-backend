@@ -17,7 +17,6 @@ export enum MessageEvents {
 
 export interface IMessageWithoutId {
   text: string;
-  user: string;
   dialogId: string;
   event: MessageEvents;
 }

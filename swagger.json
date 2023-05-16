@@ -740,6 +740,33 @@
             "description": "OK"
           }
         }
+      },
+      "put": {
+        "tags": [
+          "Посты"
+        ],
+        "summary": "",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostEdit"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostDetail"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/posts/favorite/{id}": {
@@ -1480,6 +1507,26 @@
             "type": "string"
           },
           "videoUrl": {
+            "type": "string"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "PostEdit": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "shortDescription": {
             "type": "string"
           },
           "tags": {

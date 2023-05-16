@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import PostModel, { PostStatus } from '../models/Post';
 import Comment from '../models/Comment';
-import { PostDetailDTO, PostListItemDTO } from '../dtos/PostDTO';
+import PostDTO, { PostDetailDTO, PostListItemDTO } from '../dtos/PostDTO';
 import fs from 'fs';
 import { v4 } from 'uuid';
 import { getVideoDurationInSeconds } from 'get-video-duration';
@@ -354,6 +354,10 @@ class PostsController {
 
       const parsedTags = JSON.parse(tags);
 
+      if (parsedTags.length > 3) {
+        return res.status(400).json({ message: 'Нельзя иметь больше 3 тегов' })
+      }
+
       const user = (req as any).user;
 
       const videoDuration = await getVideoDurationInSeconds(file.path);
@@ -378,7 +382,49 @@ class PostsController {
     } catch (err) {
       console.error(err);
       fs.unlinkSync(file.path);
-      res.status(500).json({error: 'Failed to upload video'});
+      res.status(500).json({ message: 'Server error' });    }
+  }
+
+  async editPost(req: Request, res: Response) {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(400).json({message: 'Ошибка при создании', errors});
+    }
+
+    try {
+      const {
+        title,
+        description,
+        shortDescription,
+        tags,
+      } = req.body;
+
+      const { id } = req.params;
+
+      if (tags.length > 3) {
+        return res.status(400).json({ message: 'Нельзя иметь больше 3 тегов' })
+      }
+
+      const user = (req as any).user;
+
+      const post = await PostModel.findOne({ _id: id, user: user.id, status: PostStatus.ACTIVE });
+
+      if (!post) {
+        return res.status(400).json({ message: 'Пост не найден' })
+      }
+
+      post.title = title || post.title;
+      post.description = description || post.description;
+      post.shortDescription = shortDescription || post.shortDescription;
+      post.tags = tags || post.tags;
+
+      await post.save();
+
+      return res.json(new PostDTO(post));
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Server error' });
     }
   }
 }
