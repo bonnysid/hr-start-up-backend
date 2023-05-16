@@ -95,28 +95,6 @@ class DialogController {
     }
   }
 
-  async createDialog(message: IDialogCreate) {
-    const { user, userId, text } = message;
-
-    if (!text || !userId) {
-      throw WSError.badRequest('Не правильно указаны параметры');
-    }
-
-    const teammate = await UserModel.findById(userId);
-
-    if (!teammate) {
-      throw WSError.badRequest('Пользователь не найден');
-    }
-
-    const dialog = new Dialog({ messages: [], users: [userId, user.id] });
-
-    await dialog.save();
-
-    const savedMessage = await this.createMessage({ dialogId: dialog.id, event: MessageEvents.MESSAGE, user, text });
-
-    return new DialogDTO({...dialog.toObject(), users: [user, teammate], messages: [savedMessage]});
-  }
-
   async createDialogByRequest(req: Request, res: Response) {
     try {
       const errors = validationResult(req);
@@ -134,26 +112,41 @@ class DialogController {
         return res.status(400).json({ message: 'Пользователь не найден' });
       }
 
-      const dialog = new Dialog({ messages: [], users: [userId, user.id] });
+      const candidateDialog = await Dialog.findOne({ users: [userId, user.id] });
 
-      await dialog.save();
+      if (candidateDialog) {
+        const message = await Message.create({ text, user: user.id, event: MessageEvents.MESSAGE, read: false });
 
-      const message = await Message.create({ text, user: user.id, event: MessageEvents.MESSAGE, read: false });
+        candidateDialog.messages = [...candidateDialog.messages, message._id];
 
-      dialog.messages = [message._id];
+        await candidateDialog.save()
 
-      await dialog.save();
+        return res.json(new DialogDTO({...candidateDialog.toObject(), users: [user, teammate], messages: [{
+            ...message.toObject(),
+            user,
+          }]}));
+      } else {
+        const message = await Message.create({ text, user: user.id, event: MessageEvents.MESSAGE, read: false });
 
-      implementDialogIdIF(dialog._id.toString(), user.id, JSON.stringify({
-        ...message.toObject(),
-        user,
-        dialogId: dialog._id.toString()
-      }))
+        const dialog = new Dialog({ messages: [], users: [userId, user.id] });
 
-      return res.json(new DialogDTO({...dialog.toObject(), users: [user, teammate], messages: [{
+        await dialog.save();
+
+        dialog.messages = [message._id];
+
+        await dialog.save();
+
+        implementDialogIdIF(dialog._id.toString(), user.id, JSON.stringify({
           ...message.toObject(),
           user,
-        }]}));
+          dialogId: dialog._id.toString()
+        }))
+
+        return res.json(new DialogDTO({...dialog.toObject(), users: [user, teammate], messages: [{
+            ...message.toObject(),
+            user,
+          }]}));
+      }
     } catch (e) {
       console.log(e);
       return res.status(500).json({ message: 'Server error' })
