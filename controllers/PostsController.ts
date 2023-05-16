@@ -408,7 +408,14 @@ class PostsController {
 
       const user = (req as any).user;
 
-      const post = await PostModel.findOne({ _id: id, user: user.id, status: PostStatus.ACTIVE });
+      const post = await PostModel.findOne({ _id: id, user: user.id, status: PostStatus.ACTIVE }).populate([
+        {
+          path: 'user',
+          populate: {
+            path: 'roles',
+          },
+        },
+        { path: 'tags' }]).exec();
 
       if (!post) {
         return res.status(400).json({ message: 'Пост не найден' })
