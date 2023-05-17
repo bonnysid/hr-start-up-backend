@@ -1016,7 +1016,8 @@
               "application/json": {
                 "example": {
                   "success": "true",
-                  "videoUrl": "string"
+                  "videoUrl": "string",
+                  "id": "string"
                 }
               }
             }

@@ -378,7 +378,7 @@ class PostsController {
       const post = new PostModel({title, description, shortDescription, tags: parsedTags, videoUrl, user: user.id});
       await post.save();
 
-      return res.json({success: true, videoUrl});
+      return res.json({success: true, videoUrl, id: post._id });
     } catch (err) {
       console.error(err);
       fs.unlinkSync(file.path);
