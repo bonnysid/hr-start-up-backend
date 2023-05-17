@@ -7,12 +7,14 @@ import Dialog from '../models/Dialog';
 import WSError from '../errors/WSError';
 import UserDTO from '../dtos/UserDTO';
 import Message from '../models/Message';
+import MessageDTO from '../dtos/MessageDTO';
 
 export enum MessageEvents {
   CONNECTION = 'connection',
   MESSAGE = 'message',
   READ_MESSAGE = 'readMessage',
   ERROR = 'error',
+  DELETE_MESSAGE = 'deleteMessage',
 }
 
 export interface IMessageWithoutId {
@@ -104,6 +106,37 @@ const readMessage = async (data: IReadMessageDTO) => {
   });
 }
 
+const deleteMessage = async (data: IReadMessageDTO, userId: string) => {
+  const message = await Message.findOne({ _id: data.messageId, user: userId });
+
+  if (!message) {
+    throw WSError.badRequest('Сообщение не найдено')
+  }
+
+  await message.remove();
+
+  const dialog = await Dialog.findOne({ messages: data.messageId });
+
+  if (dialog) {
+    dialog.messages = dialog.messages.filter(it => it.toString() !== data.messageId);
+    await dialog.save();
+    const lastMessage = await Message.findById(dialog.messages[dialog.messages.length - 1].toString()).populate('user').exec();
+
+    return {
+      event: MessageEvents.DELETE_MESSAGE,
+      messageId: data.messageId,
+      lastMessage: new MessageDTO(lastMessage),
+      dialogId: dialog._id.toString(),
+    }
+  }
+
+
+  return {
+    event: MessageEvents.DELETE_MESSAGE,
+    messageId: data.messageId,
+  }
+}
+
 
 wss.on('connection', async (ws: WebSocket & ISocket) => {
   ws.on('error', console.error);
@@ -131,6 +164,13 @@ wss.on('connection', async (ws: WebSocket & ISocket) => {
         case MessageEvents.READ_MESSAGE:
           dataMessage = JSON.parse(message) as IReadMessageDTO;
           await readMessage(dataMessage)
+          break;
+        case MessageEvents.DELETE_MESSAGE:
+          dataMessage = JSON.parse(message) as IReadMessageDTO;
+          const res = await deleteMessage(dataMessage, decodedData.id);
+          if (res.dialogId) {
+            broadCastMessage(res.dialogId, res);
+          }
           break;
       }
     } catch (e) {
