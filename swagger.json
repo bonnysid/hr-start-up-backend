@@ -1463,6 +1463,9 @@
           "id": {
             "type": "string"
           },
+          "banReason": {
+            "$ref": "#/components/schemas/BanReason"
+          },
           "updatedAt": {
             "type": "string"
           },
@@ -1615,11 +1618,33 @@
           "videoUrl": {
             "type": "string"
           },
+          "banReason": {
+            "$ref": "#/components/schemas/BanReason"
+          },
           "tags": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/Tag"
             }
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          }
+        }
+      },
+      "BanReason": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          }
+        }
+      },
+      "BanReasonAdmin": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
           },
           "user": {
             "$ref": "#/components/schemas/User"
