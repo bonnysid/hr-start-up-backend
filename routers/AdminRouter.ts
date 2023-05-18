@@ -50,6 +50,12 @@ router.get(
   roleMiddleware(['ADMIN', 'MODERATOR']),
   AdminController.getUsers
 );
+router.get(
+  '/users/:id',
+  authMiddleware,
+  roleMiddleware(['ADMIN', 'MODERATOR']),
+  AdminController.getUser
+);
 router.post(
   '/tags/create',
   authMiddleware,
