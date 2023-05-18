@@ -9,7 +9,21 @@ import Complaint from '../models/Complaint';
 class ComplaintController {
   async getComplaints(req: Request, res: Response) {
     try {
-      const complaints = await ComplaintModel.find().populate([
+      const {
+        status,
+        user,
+        type,
+        sort = 'createdAt',
+        sortValue = 'desc',
+      } = req.query;
+
+      const sortValueParsed = sortValue === 'desc' ? 'desc' : 'asc';
+
+      const complaints = await ComplaintModel.find({
+        ...(type ? { type } : {}),
+        ...(user ? { user } : {}),
+        ...(status ? { status } : {}),
+      }).populate([
         {
           path: 'author'
         },
@@ -22,7 +36,7 @@ class ComplaintController {
         {
           path: 'whoResolve'
         },
-      ]).exec();
+      ]).sort({ [String(sort)]: sortValueParsed }).exec();
 
       return res.json(complaints.map(it => new ComplaintDTO(it)));
     } catch (e) {
@@ -89,11 +103,46 @@ class ComplaintController {
     }
   }
 
+  async unresolveComplaint(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+
+      const complaint = await ComplaintModel.findById(id);
+
+      if (!complaint) {
+        return res.status(400).json({ message: 'Жалоба не найдена' })
+      }
+
+      complaint.status = ComplaintStatus.UNRESOLVED;
+      complaint.whoResolve = undefined;
+
+      await complaint.save();
+
+      return res.json({ message: 'Жалоба успешно открыта' });
+    } catch (e) {
+      console.log(e);
+      return res.status(500).json({ message: 'Server error' });
+    }
+  }
+
   async getMyComplaints(req: Request, res: Response) {
     try {
+      const {
+        status,
+        type,
+        sort = 'createdAt',
+        sortValue = 'desc',
+      } = req.query;
+
+      const sortValueParsed = sortValue === 'desc' ? 'desc' : 'asc';
+
       const { user } = req as any;
 
-      const complaints = await ComplaintModel.find({ author: user.id }).populate([
+      const complaints = await ComplaintModel.find({
+        author: user.id,
+        ...(type ? { type } : {}),
+        ...(status ? { status } : {}),
+      }).populate([
         {
           path: 'author'
         },
@@ -106,7 +155,7 @@ class ComplaintController {
         {
           path: 'whoResolve'
         },
-      ]).exec();
+      ]).sort({ [String(sort)]: sortValueParsed }).exec();
 
       return res.json(complaints.map(it => new UserComplaintDTO(it)));
     } catch (e) {

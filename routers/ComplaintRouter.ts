@@ -29,12 +29,20 @@ router.post(
 router.post(
   '/resolve/:id',
   authMiddleware,
+  roleMiddleware(['ADMIN', 'MODERATOR']),
   ComplaintController.resolveComplaint
 );
 router.post(
   '/close/:id',
   authMiddleware,
+  roleMiddleware(['ADMIN', 'MODERATOR']),
   ComplaintController.closeComplaint
+);
+router.post(
+  '/unresolve/:id',
+  authMiddleware,
+  roleMiddleware(['ADMIN', 'MODERATOR']),
+  ComplaintController.unresolveComplaint
 );
 
 export default router;

@@ -804,6 +804,19 @@
         }
       }
     },
+    "/complaints/unresolve/{id}": {
+      "post": {
+        "tags": [
+          "Административная панель"
+        ],
+        "summary": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/posts/user/{userId}": {
       "get": {
         "tags": [
@@ -1725,6 +1738,12 @@
           "type": {
             "type": "string"
           },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
           "post": {
             "$ref": "#/components/schemas/PostComplaintItem"
           },
@@ -1762,6 +1781,12 @@
         "type": "object",
         "properties": {
           "id": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
             "type": "string"
           },
           "status": {

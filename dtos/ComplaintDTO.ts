@@ -11,6 +11,8 @@ class ComplaintDTO extends DefaultDTO {
   user?: UserCommentDto;
   author?: UserCommentDto;
   whoResolve?: UserCommentDto;
+  updatedAt: string;
+  createdAt: string;
 
   constructor(model: any) {
     super(model);
@@ -18,6 +20,8 @@ class ComplaintDTO extends DefaultDTO {
     this.author = new UserCommentDto(model.author);
     this.status = model.status;
     this.type = model.type;
+    this.updatedAt = model.updatedAt;
+    this.createdAt = model.createdAt;
 
     if ([ComplaintStatus.CLOSED, ComplaintStatus.RESOLVED].includes(this.status)) {
       this.whoResolve = new UserCommentDto(model.whoResolve);
@@ -41,6 +45,8 @@ export class UserComplaintDTO extends DefaultDTO {
   post?: PostShortDTO;
   user?: UserCommentDto;
   author?: UserCommentDto;
+  updatedAt: string;
+  createdAt: string;
 
   constructor(model: any) {
     super(model);
@@ -48,6 +54,8 @@ export class UserComplaintDTO extends DefaultDTO {
     this.author = new UserCommentDto(model.author);
     this.status = model.status;
     this.type = model.type;
+    this.updatedAt = model.updatedAt;
+    this.createdAt = model.createdAt;
 
     switch (this.type) {
       case ComplaintType.USER:
