@@ -112,7 +112,7 @@ class DialogController {
         return res.status(400).json({ message: 'Пользователь не найден' });
       }
 
-      const candidateDialog = await Dialog.findOne({ users: [userId, user.id] });
+      const candidateDialog = await Dialog.findOne({ users: { $all: [userId, user.id] }});
 
       if (candidateDialog) {
         const message = await Message.create({ text, user: user.id, event: MessageEvents.MESSAGE, read: false });

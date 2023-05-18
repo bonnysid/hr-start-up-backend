@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import { body } from 'express-validator';
 import AdminController  from '../controllers/AdminController';
 import { authMiddleware }  from '../middleware/AuthMiddleware';
 import { roleMiddleware }  from '../middleware/RoleMiddleware';

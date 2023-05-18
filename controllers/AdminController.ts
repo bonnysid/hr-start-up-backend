@@ -10,8 +10,7 @@ import bcrypt from 'bcryptjs';
 import UserDTO from '../dtos/UserDTO';
 import TokenService from '../services/TokenService';
 import TagDTO from '../dtos/TagDTO';
-import PostDTO, { PostDetailDTO, PostListItemDTO } from '../dtos/PostDTO';
-import geo from 'geoip-lite';
+import { PostDetailDTO, PostListItemDTO } from '../dtos/PostDTO';
 import { IPService } from '../services/IPService';
 
 class AdminController {
