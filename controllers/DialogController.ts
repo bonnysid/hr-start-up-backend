@@ -122,11 +122,13 @@ class DialogController {
 
         await candidateDialog.save();
 
-        broadCastMessage(candidateDialog._id.toString(), new MessageDTO({
+        const msg = new MessageDTO({
           ...message.toObject(),
           user,
           dialogId: candidateDialog._id.toString(),
-        }))
+        });
+
+        broadCastMessage(candidateDialog._id.toString(), { ...msg, event: MessageEvents.MESSAGE })
 
         return res.json(new DialogDTO({...candidateDialog.toObject(), users: [user, teammate], messages: [{
             ...message.toObject(),
