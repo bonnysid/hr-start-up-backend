@@ -51,7 +51,7 @@ class ComplaintController {
 
       await complaint.save();
 
-      broadCastMessage(complaint.author.toString(), { event: MessageEvents.RESOLVE_COMPLAIN, complaintId: id })
+      broadCastMessage(complaint.author.toString(), { event: MessageEvents.RESOLVE_COMPLAIN, complaintId: id, status: ComplaintStatus.RESOLVED })
 
       return res.json({ message: 'Жалоба успешно решена' });
     } catch (e) {
@@ -80,7 +80,7 @@ class ComplaintController {
 
       await complaint.save();
 
-      broadCastMessage(complaint.author.toString(), { event: MessageEvents.CLOSE_COMPLAIN, complaintId: id })
+      broadCastMessage(complaint.author.toString(), { event: MessageEvents.CLOSE_COMPLAIN, complaintId: id, status: ComplaintStatus.CLOSED })
 
       return res.json({ message: 'Жалоба успешно закрыта' });
     } catch (e) {
