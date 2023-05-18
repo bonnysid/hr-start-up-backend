@@ -13,6 +13,8 @@ export enum MessageEvents {
   CONNECTION = 'connection',
   MESSAGE = 'message',
   READ_MESSAGE = 'readMessage',
+  CLOSE_COMPLAIN = 'closeComplain',
+  RESOLVE_COMPLAIN = 'resolveComplain',
   ERROR = 'error',
   DELETE_MESSAGE = 'deleteMessage',
 }

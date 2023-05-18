@@ -12,6 +12,11 @@ import TokenService from '../services/TokenService';
 import TagDTO from '../dtos/TagDTO';
 import { PostDetailDTO, PostListItemDTO } from '../dtos/PostDTO';
 import { IPService } from '../services/IPService';
+import fs from 'fs';
+import Comment from '../models/Comment';
+import BanReasonModel from '../models/BanReason';
+
+const USER_BAN_POST = 'Автор поста заблокирован';
 
 class AdminController {
   async getRoles(req: Request, res: Response) {
@@ -321,8 +326,19 @@ class AdminController {
         ],
         ...(roles ? { roles: { $in: roles } } : {}),
         ...(status ? { status } : {}),
-      }).populate('roles').exec();
-      const userDTOS = users.map(it => new UserDTO(it));
+      }).populate([
+        { path: 'roles' },
+        {
+          path: 'banReason',
+          populate: {
+            path: 'user',
+            populate: {
+              path: 'roles',
+            },
+          },
+        }
+      ]).exec();
+      const userDTOS = users.map(it => new UserDTO(it, true));
 
       return res.json(userDTOS);
     } catch (e) {
@@ -348,6 +364,15 @@ class AdminController {
           populate: {
             path: 'user',
           },
+        },
+        {
+          path: 'banReason',
+          populate: {
+            path: 'user',
+            populate: {
+              path: 'roles',
+            },
+          },
         }
       ]).exec();
 
@@ -358,7 +383,7 @@ class AdminController {
       post.views += 1;
       await post.save();
 
-      return res.json(new PostDetailDTO(post, (req as any).user));
+      return res.json(new PostDetailDTO(post, (req as any).user, true));
     } catch (e) {
       console.log(e);
       return res.status(500).json({message: 'Server error'});
@@ -383,14 +408,28 @@ class AdminController {
         ...(tags ? { tags: { $in: tags } } : {}),
         ...(users ? { user: users } : {}),
         ...(status ? { status } : {}),
-      }).sort({ [String(sort)]: sortValueParsed }).populate([{
-        path: 'user',
-        populate: {
-          path: 'roles',
+      }).sort({ [String(sort)]: sortValueParsed }).populate([
+        {
+          path: 'user',
+          populate: {
+            path: 'roles',
+          },
         },
-      }, { path: 'tags' }]).exec();
+        {
+          path: 'tags'
+        },
+        {
+          path: 'banReason',
+          populate: {
+            path: 'user',
+            populate: {
+              path: 'roles',
+            },
+          },
+        }
+      ]).exec();
 
-      const postsDTOS = posts.map(it => new PostListItemDTO(it, (req as any).user));
+      const postsDTOS = posts.map(it => new PostListItemDTO(it, (req as any).user, true));
       return res.json(postsDTOS);
     } catch (e) {
       console.log(e);
@@ -401,6 +440,8 @@ class AdminController {
   async banUser(req: Request, res: Response) {
     try {
       const { id } = req.params;
+      const { text } = req.body;
+      const { user: admin } = req as any;
 
       const user = await UserModel.findOne({ _id: id }).populate('roles').exec();
 
@@ -412,16 +453,24 @@ class AdminController {
         return res.status(403).json({ message: 'У вас нет прав для бана этого пользователя!' })
       }
 
+      const banReason = new BanReasonModel({ text, user: admin.id });
+      await banReason.save();
+
+      const postBanReason = new BanReasonModel({ text: 'Автор поста заблокирован', user: admin.id });
+      await postBanReason.save();
+
       const posts = await PostModel.find({ user: id });
 
       if (posts) {
         posts.forEach(post => {
           post.status = PostStatus.BANNED;
+          post.banReason = postBanReason._id;
           post.save();
         })
       }
 
       user.status = UserStatus.BANNED;
+      user.banReason = banReason._id;
       await user.save()
 
       return res.status(200).json({ message: 'Пользователь успешно заблокирован' })
@@ -441,16 +490,20 @@ class AdminController {
         return res.status(400).json({ message: 'Пользователь не найден' })
       }
 
-      const posts = await PostModel.find({ user: id });
+      const posts = await PostModel.find({ user: id }).populate<{ banReason?: { text: string } }>('banReason').exec();
 
       if (posts) {
         posts.forEach(post => {
-          post.status = PostStatus.ACTIVE;
-          post.save();
+          if (post.banReason?.text === USER_BAN_POST) {
+            post.status = PostStatus.ACTIVE;
+            post.banReason = undefined;
+            post.save();
+          }
         })
       }
 
       user.status = UserStatus.ACTIVE;
+      user.banReason = undefined;
       await user.save()
 
       return res.status(200).json({ message: 'Пользователь успешно разблокирован' })
@@ -463,6 +516,8 @@ class AdminController {
   async banPost(req: Request, res: Response) {
     try {
       const { id } = req.params;
+      const { text } = req.body;
+      const { user: admin } = req as any;
 
       const post = await PostModel.findOne({ _id: id })
 
@@ -470,7 +525,11 @@ class AdminController {
         return res.status(400).json({ message: 'Пост не найден' })
       }
 
+      const banReason = new BanReasonModel({ text, user: admin.id });
+      await banReason.save();
+
       post.status = PostStatus.BANNED;
+      post.banReason = banReason._id;
       await post.save()
 
       return res.status(200).json({ message: 'Пост успешно заблокирован' })
@@ -491,12 +550,48 @@ class AdminController {
       }
 
       post.status = PostStatus.ACTIVE;
+      post.banReason = undefined;
       await post.save()
 
       return res.status(200).json({ message: 'Пост успешно разблокирован' })
     } catch (e) {
       console.log(e);
       res.status(400).json({ message: 'Unban error' })
+    }
+  }
+
+  async deletePost(req: Request, res: Response) {
+    try {
+      const user = (req as any).user;
+      const {id} = req.params;
+      const post = await PostModel.findOne({_id: id, user: user.id});
+
+      if (!post) {
+        return res.status(400).json({message: 'Пост не найден'})
+      }
+
+      if (post.status === PostStatus.ACTIVE) {
+        return res.status(400).json({ message: 'Сначала заблокируйте пост' })
+      }
+
+      if (post.videoUrl) {
+        fs.unlinkSync(post.videoUrl?.replace(`http://${req.headers.host}/`, ''))
+      }
+
+      await Promise.all(post.comments.map(async it => {
+        await Comment.findByIdAndDelete(it);
+      }));
+
+      await post.remove();
+
+      if (post.banReason) {
+        await BanReasonModel.findOneAndDelete({ _id: post.banReason })
+      }
+
+      return res.json({message: 'Пост успешно удален'});
+    } catch (e) {
+      console.log(e);
+      return res.status(500).json({message: 'Server error'});
     }
   }
 }

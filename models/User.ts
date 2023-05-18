@@ -35,6 +35,7 @@ const User = new Schema({
     required: false,
     default: null,
   },
+  banReason: { type: Schema.Types.ObjectId, ref: 'banReasons' },
   sessions: [{ type: Schema.Types.ObjectId, ref: 'sessions' }],
 }, { timestamps: true });
 

@@ -6,6 +6,7 @@ import UserRouter from './routers/UserRouter';
 import TagsRouter from './routers/TagsRouter';
 import PostsRouter from './routers/PostsRouter';
 import DialogRouter from './routers/DialogRouter';
+import ComplaintRouter from './routers/ComplaintRouter';
 import { config } from './config';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
@@ -38,6 +39,7 @@ app.use('/users', UserRouter);
 app.use('/tags', TagsRouter);
 app.use('/posts', PostsRouter);
 app.use('/dialogs', DialogRouter);
+app.use('/complaints', ComplaintRouter);
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDoc))
 app.use('/avatars', express.static('avatars'));
 app.use('/videos', express.static('videos'));

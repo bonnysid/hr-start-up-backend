@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import PostModel, { PostStatus } from '../models/Post';
-import Comment from '../models/Comment';
+import Comment, { CommentStatus } from '../models/Comment';
 import PostDTO, { PostDetailDTO, PostListItemDTO } from '../dtos/PostDTO';
 import fs from 'fs';
 import { v4 } from 'uuid';
@@ -171,15 +171,9 @@ class PostsController {
         return res.status(400).json({message: 'Пост не найден'})
       }
 
-      if (post.videoUrl) {
-        fs.unlinkSync(post.videoUrl?.replace(`http://${req.headers.host}/`, ''))
-      }
+      post.status = PostStatus.DELETED;
 
-      await Promise.all(post.comments.map(async it => {
-        await Comment.findByIdAndDelete(it);
-      }));
-
-      await post.remove();
+      await post.save();
 
       return res.json({message: 'Пост успешно удален'});
     } catch (e) {
@@ -239,9 +233,8 @@ class PostsController {
         return res.status(403).json({message: 'У вас не прав удалить этот комментарий'})
       }
 
-      post.comments = (post.comments || []).filter(it => it.toString() !== id);
-      await post.save();
-      await comment.delete();
+      comment.status = CommentStatus.DELETED;
+      await comment.save();
 
       return res.json({ message: 'Комментарий успешно удален' })
     } catch (e) {
@@ -319,13 +312,14 @@ class PostsController {
       const posts = await PostModel.find({
         user: user.id,
         title: new RegExp(String(search), 'i'),
+        status: {$in: [PostStatus.ACTIVE, PostStatus.BANNED]},
         ...(tags ? {tags: {$in: tags}} : {}),
       }).sort({[String(sort)]: sortValueParsed}).populate([{
         path: 'user',
         populate: {
           path: 'roles',
         },
-      }, {path: 'tags'}]).exec();
+      }, {path: 'tags'}, {path: 'banReason'}]).exec();
       const postsDTOS = posts.map(it => new PostListItemDTO(it, (req as any).user));
 
       return res.json(postsDTOS);

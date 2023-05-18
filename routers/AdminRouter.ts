@@ -89,6 +89,12 @@ router.delete(
   roleMiddleware(['ADMIN']),
   AdminController.deleteRole
 );
+router.delete(
+  '/posts/:id',
+  authMiddleware,
+  roleMiddleware(['ADMIN']),
+  AdminController.deletePost
+);
 router.put(
   '/roles/:id',
   authMiddleware,
@@ -102,6 +108,9 @@ router.post(
   '/users/ban/:id',
   authMiddleware,
   roleMiddleware(['ADMIN', 'MODERATOR']),
+  [
+    required('text'),
+  ],
   AdminController.banUser
 );
 router.post(
@@ -114,6 +123,9 @@ router.post(
   '/posts/ban/:id',
   authMiddleware,
   roleMiddleware(['ADMIN', 'MODERATOR']),
+  [
+    required('text'),
+  ],
   AdminController.banPost
 );
 router.post(

@@ -3,6 +3,7 @@ import { model, Schema } from 'mongoose';
 export enum PostStatus {
   ACTIVE = 'ACTIVE',
   BANNED = 'BANNED',
+  DELETED = 'DELETED',
 }
 
 const Post = new Schema({
@@ -30,6 +31,7 @@ const Post = new Schema({
     type: Schema.Types.Number,
     default: 0,
   },
+  banReason: { type: Schema.Types.ObjectId, ref: 'banReasons' },
   tags: [{ type: Schema.Types.ObjectId, ref: 'tags' }],
   user: { type: Schema.Types.ObjectId, ref: 'users', required: true },
   favoriteUsers: [{ type: Schema.Types.ObjectId, ref: 'users' }],

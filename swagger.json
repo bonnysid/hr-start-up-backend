@@ -29,6 +29,9 @@
     },
     {
       "name": "Посты"
+    },
+    {
+      "name": "Жалобы"
     }
   ],
   "paths": {
@@ -661,6 +664,142 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/complaints": {
+      "get": {
+        "tags": [
+          "Административная панель"
+        ],
+        "summary": "",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AdminComplaint"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/complaints/my": {
+      "get": {
+        "tags": [
+          "Жалобы"
+        ],
+        "summary": "",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Complaint"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/complaints/post": {
+      "post": {
+        "tags": [
+          "Жалобы"
+        ],
+        "summary": "",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ComplaintPostCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Complaint"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/complaints/user": {
+      "post": {
+        "tags": [
+          "Жалобы"
+        ],
+        "summary": "",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ComplaintUserCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Complaint"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/complaints/resolve/{id}": {
+      "post": {
+        "tags": [
+          "Административная панель"
+        ],
+        "summary": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/complaints/close/{id}": {
+      "post": {
+        "tags": [
+          "Административная панель"
+        ],
+        "summary": "",
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
       }
@@ -1535,6 +1674,88 @@
             "items": {
               "type": "string"
             }
+          }
+        }
+      },
+      "PostComplaintItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        }
+      },
+      "Complaint": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "post": {
+            "$ref": "#/components/schemas/PostComplaintItem"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserComment"
+          },
+          "author": {
+            "$ref": "#/components/schemas/UserComment"
+          }
+        }
+      },
+      "ComplaintPostCreate": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "postId": {
+            "type": "string"
+          }
+        }
+      },
+      "ComplaintUserCreate": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          }
+        }
+      },
+      "AdminComplaint": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "post": {
+            "$ref": "#/components/schemas/PostComplaintItem"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserComment"
+          },
+          "author": {
+            "$ref": "#/components/schemas/UserComment"
+          },
+          "whoResolve": {
+            "$ref": "#/components/schemas/UserComment"
           }
         }
       },
