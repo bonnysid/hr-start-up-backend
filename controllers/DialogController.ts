@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import Dialog from '../models/Dialog';
 import UserModel from '../models/User';
 import ApiError from '../errors/ApiError';
-import { IMessageWithoutId, implementDialogIdIF, MessageEvents } from './SocketController';
+import { broadCastMessage, IMessageWithoutId, implementDialogIdIF, MessageEvents } from './SocketController';
 import Message from '../models/Message';
 import MessageDTO from '../dtos/MessageDTO';
 import DialogDTO, { DialogListDTO } from '../dtos/DialogDTO';
@@ -119,7 +119,12 @@ class DialogController {
 
         candidateDialog.messages = [...candidateDialog.messages, message._id];
 
-        await candidateDialog.save()
+        await candidateDialog.save();
+
+        broadCastMessage(candidateDialog._id.toString(), {
+          ...message.toObject(),
+          user,
+        })
 
         return res.json(new DialogDTO({...candidateDialog.toObject(), users: [user, teammate], messages: [{
             ...message.toObject(),

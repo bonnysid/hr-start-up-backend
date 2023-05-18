@@ -55,7 +55,7 @@ export const wss = new ws.Server({
   port: 4000,
 }, () => console.log(`Websocket was started on port: ${4000}`));
 
-const broadCastMessage = <T>(id: string, message: T) => {
+export const broadCastMessage = <T>(id: string, message: T) => {
   wss.clients.forEach((client: any) => {
     if (client.id === id) {
       client.send(JSON.stringify(message));
