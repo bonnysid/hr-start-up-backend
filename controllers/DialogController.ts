@@ -9,6 +9,7 @@ import DialogDTO, { DialogListDTO } from '../dtos/DialogDTO';
 import UserDTO from '../dtos/UserDTO';
 import WSError from '../errors/WSError';
 import { validationResult } from 'express-validator';
+import dialog from '../models/Dialog';
 
 export interface IDialogCreate {
   text: string;
@@ -121,10 +122,11 @@ class DialogController {
 
         await candidateDialog.save();
 
-        broadCastMessage(candidateDialog._id.toString(), {
+        broadCastMessage(candidateDialog._id.toString(), new MessageDTO({
           ...message.toObject(),
           user,
-        })
+          dialogId: candidateDialog._id.toString(),
+        }))
 
         return res.json(new DialogDTO({...candidateDialog.toObject(), users: [user, teammate], messages: [{
             ...message.toObject(),
