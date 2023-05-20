@@ -8,10 +8,13 @@ import WSError from '../errors/WSError';
 import UserDTO from '../dtos/UserDTO';
 import Message from '../models/Message';
 import MessageDTO from '../dtos/MessageDTO';
+import ComplaintController, { IComplaintMessageCreate } from '../controllers/ComplaintController';
+import Complaint from '../models/Complaint';
 
 export enum MessageEvents {
   CONNECTION = 'connection',
   MESSAGE = 'message',
+  COMPLAINT_MESSAGE = 'complaintMessage',
   READ_MESSAGE = 'readMessage',
   CLOSE_COMPLAIN = 'closeComplain',
   RESOLVE_COMPLAIN = 'resolveComplain',
@@ -28,6 +31,7 @@ export interface IMessageWithoutId {
 export interface IBaseMessage {
   token: string;
   event: MessageEvents;
+  fromAdmin?: boolean;
 }
 
 export interface IReadMessageDTO extends IBaseMessage {
@@ -69,9 +73,10 @@ export const broadCastMessage = <T>(id: string, message: T) => {
   })
 }
 
-const getDialogsIds = async (userId: string) => {
+const getDialogsIds = async (userId: string, fromAdmin?: boolean) => {
   const dialogs = await Dialog.find({ users: userId });
-  return dialogs.map(it => it.id);
+  const complaints = await Complaint.find({ ...(fromAdmin ? {} : { author: userId }) });
+  return [...dialogs.map(it => it.id), ...complaints.map(it => it.id)];
 }
 
 export const implementDialogIdIF = async (dialogId: string, currentUserId: string, message: string) => {
@@ -98,6 +103,23 @@ export const implementDialogIdIF = async (dialogId: string, currentUserId: strin
     }
     if (currentClient && currentClient) {
       currentClient.dialogs = [...(currentClient.dialogs || []), dialogId];
+    }
+  }
+}
+
+export const implementComplaintIdIF = async (complaintId: string) => {
+  const complaint = await Complaint.findById(complaintId);
+
+  if (complaint) {
+    let client: any;
+    wss.clients.forEach((it: any) => {
+      if (it.id === complaint.author._id) {
+        client = it;
+      }
+    });
+
+    if (client) {
+      client.dialogs = [...(client.dialogs || []), complaintId];
     }
   }
 }
@@ -145,7 +167,7 @@ wss.on('connection', async (ws: WebSocket & ISocket) => {
 
   ws.on(MessageEvents.MESSAGE, async (message: string) => {
     try {
-      const { token, event } = JSON.parse(message) as IBaseMessage;
+      const { token, event, fromAdmin } = JSON.parse(message) as IBaseMessage;
 
       const decodedData: any = checkUser(token);
       let dataMessage;
@@ -157,9 +179,15 @@ wss.on('connection', async (ws: WebSocket & ISocket) => {
 
           broadCastMessage(dataMessage.dialogId, { ...msgFromDB, event: MessageEvents.MESSAGE });
           break;
+        case MessageEvents.COMPLAINT_MESSAGE:
+          dataMessage = JSON.parse(message) as IComplaintMessageCreate;
+          const complaintMessage = await ComplaintController.createMessage({ ...dataMessage, user: decodedData }) as any;
+
+          broadCastMessage(dataMessage.complaintId, { ...complaintMessage, event: MessageEvents.COMPLAINT_MESSAGE });
+          break;
         case MessageEvents.CONNECTION:
           ws.id = decodedData.id;
-          const ids = await getDialogsIds(ws.id);
+          const ids = await getDialogsIds(ws.id, fromAdmin);
           ws.dialogs = ids || [];
           broadCastMessage(ws.id, { text: 'Success' })
           break;

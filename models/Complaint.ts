@@ -18,7 +18,8 @@ const Complaint = new Schema({
   postId: { type: Schema.Types.ObjectId, ref: 'posts' },
   userId: { type: Schema.Types.ObjectId, ref: 'users' },
   author: { type: Schema.Types.ObjectId, ref: 'users', required: true },
-  whoResolve: { type: Schema.Types.ObjectId, ref: 'users' }
+  whoResolve: { type: Schema.Types.ObjectId, ref: 'users' },
+  messages: [{ type: Schema.Types.ObjectId, ref: 'messages' }]
 }, { timestamps: true });
 
 export default model('complaints', Complaint);

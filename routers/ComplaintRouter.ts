@@ -8,6 +8,7 @@ const router = Router();
 
 router.get('/', authMiddleware, roleMiddleware(['ADMIN', 'MODERATOR']), ComplaintController.getComplaints);
 router.get('/my', authMiddleware, ComplaintController.getMyComplaints);
+router.get('/:id', authMiddleware, ComplaintController.getComplaint);
 router.post(
   '/post',
   authMiddleware,

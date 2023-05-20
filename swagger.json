@@ -691,6 +691,26 @@
         }
       }
     },
+    "/complaints/{id}": {
+      "get": {
+        "tags": [
+          "Жалобы"
+        ],
+        "summary": "",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComplaintDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/complaints/my": {
       "get": {
         "tags": [
@@ -1555,6 +1575,32 @@
           }
         }
       },
+      "ComplaintMessage": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "complaintId": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "read": {
+            "type": "boolean"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserComment"
+          }
+        }
+      },
       "DialogListItem": {
         "type": "object",
         "properties": {
@@ -1744,6 +1790,9 @@
           "updatedAt": {
             "type": "string"
           },
+          "unreadableMessages" : {
+            "type": "number"
+          },
           "post": {
             "$ref": "#/components/schemas/PostComplaintItem"
           },
@@ -1752,6 +1801,41 @@
           },
           "author": {
             "$ref": "#/components/schemas/UserComment"
+          }
+        }
+      },
+      "ComplaintDetail": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "post": {
+            "$ref": "#/components/schemas/PostComplaintItem"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserComment"
+          },
+          "author": {
+            "$ref": "#/components/schemas/UserComment"
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ComplaintMessage"
+            }
           }
         }
       },
@@ -1797,6 +1881,9 @@
           },
           "post": {
             "$ref": "#/components/schemas/PostComplaintItem"
+          },
+          "unreadableMessages" : {
+            "type": "number"
           },
           "user": {
             "$ref": "#/components/schemas/UserComment"
