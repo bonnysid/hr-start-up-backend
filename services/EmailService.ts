@@ -20,7 +20,7 @@ class EmailService {
 
   async sendMail(to: string, html: string, subject: string = 'Подтверждение почты') {
     return await this.transporter.sendMail({
-      from: 'InvestApp',
+      from: 'inveapp@yandex.ru',
       to,
       subject,
       html,

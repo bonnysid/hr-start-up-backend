@@ -38,6 +38,22 @@ router.post(
   UsersController.changePassword
 );
 router.post(
+  '/change/email',
+  authMiddleware,
+  [
+    required('email').isEmail(),
+  ],
+  UsersController.changeEmail
+);
+router.post(
+  '/change/email/confirm',
+  authMiddleware,
+  [
+    required('code'),
+  ],
+  UsersController.changeEmailConfirm
+);
+router.post(
   '/change/info',
   authMiddleware,
   [

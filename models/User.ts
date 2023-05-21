@@ -37,6 +37,8 @@ const User = new Schema({
   },
   banReason: { type: Schema.Types.ObjectId, ref: 'banReasons' },
   sessions: [{ type: Schema.Types.ObjectId, ref: 'sessions' }],
+  tempEmailCode: { type: Schema.Types.String },
+  tempEmail: { type: Schema.Types.String },
 }, { timestamps: true });
 
 export default model('users', User);

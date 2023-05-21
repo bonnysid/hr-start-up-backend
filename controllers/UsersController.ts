@@ -10,6 +10,8 @@ import bcrypt from 'bcryptjs';
 import { validationResult } from 'express-validator';
 import SessionDTO from '../dtos/SessionDTO';
 import { IPService } from '../services/IPService';
+import EmailService from '../services/EmailService';
+import TokenService from '../services/TokenService';
 
 class UsersController {
   async getUsers(req: Request, res: Response) {
@@ -79,7 +81,7 @@ class UsersController {
 
       const user = (req as any).user;
 
-      const candidate = await UserModel.findOne({ email: user.email });
+      const candidate = await UserModel.findOne({ _id: user.id });
 
       if (!candidate) {
         return res.status(400).json({ message: 'Пользователь не найден' });
@@ -126,7 +128,7 @@ class UsersController {
 
       const user = (req as any).user;
 
-      const candidate = await UserModel.findOne({ email: user.email }).populate('roles').exec();
+      const candidate = await UserModel.findOne({ _id: user.id }).populate('roles').exec();
 
       if (!candidate) {
         return res.status(400).json({ message: 'Пользователь не найден' });
@@ -183,7 +185,7 @@ class UsersController {
     try {
       const user = (req as any).user;
 
-      const candidate = await UserModel.findOne({ email: user.email }).populate('sessions').exec();
+      const candidate = await UserModel.findOne({ _id: user.id }).populate('sessions').exec();
 
       if (!candidate) {
         return res.status(400).json({ message: 'Пользователь не найден' });
@@ -196,6 +198,72 @@ class UsersController {
       const ipRes = IPService.getIp(req);
 
       return res.status(200).json(candidate.sessions.map((it: any) => new SessionDTO(it, it.ip === ipRes.ip)))
+    } catch (e) {
+      console.log(e);
+      return res.status(500).json({ message: 'Server error' })
+    }
+  }
+
+  async changeEmail(req: Request, res: Response) {
+    try {
+      const { email } = req.body;
+      const { user: currentUser } = req as any;
+
+      const user = await UserModel.findById(currentUser.id);
+
+      if (!user) {
+        return res.status(400).json({ message: 'Пользователь не найден' });
+      }
+
+      const { code, token } = TokenService.generateCodeToken();
+
+      user.tempEmail = email;
+      user.tempEmailCode = token;
+      await user.save();
+
+      await EmailService.sendMail(email, `
+        <div>${code}</div>
+      `, 'Код для смены почты');
+
+      return res.json({ message: 'Код для подтверждения отправлен на новую почту' })
+    } catch (e) {
+      console.log(e);
+      return res.status(500).json({ message: 'Server error' })
+    }
+  }
+
+  async changeEmailConfirm(req: Request, res: Response) {
+    try {
+      const { code } = req.body;
+      const { user: currentUser } = req as any;
+
+      const user = await UserModel.findById(currentUser.id);
+
+      if (!user) {
+        return res.status(400).json({ message: 'Пользователь не найден' });
+      }
+
+      if (!user.tempEmailCode) {
+        return res.status(400).json({ message: 'Код не верный' });
+      }
+
+      try {
+        const correctCode = TokenService.getCode(user.tempEmailCode);
+
+        if (correctCode === code) {
+          user.email = user.tempEmail;
+          user.tempEmail = '';
+          user.tempEmailCode = '';
+          await user.save();
+        } else {
+          return res.status(400).json({ message: 'Код не верный' });
+        }
+      } catch (e) {
+        user.tempEmailCode = '';
+        return res.status(400).json({ message: 'Код не верный' });
+      }
+
+      return res.json({ message: 'Почта успешно изменена' })
     } catch (e) {
       console.log(e);
       return res.status(500).json({ message: 'Server error' })

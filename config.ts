@@ -7,6 +7,7 @@ const config = {
   dbUrl: process.env.DB_URL as string,
   videoPath: process.env.FILE_PATH as string,
   staticPath: process.env.STATIC_PATH as string,
+  codeSecret: process.env.CODE_SECRET as string,
 }
 
 export { config };

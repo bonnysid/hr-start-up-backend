@@ -15,6 +15,7 @@ import { IPService } from '../services/IPService';
 import fs from 'fs';
 import Comment from '../models/Comment';
 import BanReasonModel from '../models/BanReason';
+import { generatePassword } from '../services/PasswordServices';
 
 const USER_BAN_POST = 'Автор поста заблокирован';
 
@@ -617,6 +618,28 @@ class AdminController {
       }
 
       return res.json(new UserDTO(user));
+    } catch (e) {
+      console.log(e);
+      return res.status(500).json({ message: 'Server error' })
+    }
+  }
+
+  async resetPasswordUser(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+
+      const user = await UserModel.findById(id);
+
+      if (!user || user.status === UserStatus.BANNED) {
+        return res.status(400).json({ message: 'Пользователь не найден' })
+      }
+
+      const newPassword = generatePassword();
+      const hashPassword = bcrypt.hashSync(newPassword, 7);
+      user.password = hashPassword;
+      await user.save();
+
+      return res.json({ message: 'Письмо с паролем отправлено на почту' });
     } catch (e) {
       console.log(e);
       return res.status(500).json({ message: 'Server error' })
