@@ -582,6 +582,85 @@
         }
       }
     },
+    "/users/change/email": {
+      "post": {
+        "tags": [
+          "Пользователи"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangeEmail"
+              }
+            }
+          }
+        },
+        "summary": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/users/change/email/confirm": {
+      "post": {
+        "tags": [
+          "Пользователи"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmEmail"
+              }
+            }
+          }
+        },
+        "summary": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/users/email/send/code": {
+      "post": {
+        "tags": [
+          "Пользователи"
+        ],
+        "summary": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/users/email/confirm": {
+      "post": {
+        "tags": [
+          "Пользователи"
+        ],
+        "summary": "",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmEmail"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/users/me": {
       "get": {
         "tags": [
@@ -1207,6 +1286,22 @@
             "type": "string"
           },
           "password": {
+            "type": "string"
+          }
+        }
+      },
+      "ChangeEmail": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          }
+        }
+      },
+      "ConfirmEmail": {
+        "type": "object",
+        "properties": {
+          "code": {
             "type": "string"
           }
         }

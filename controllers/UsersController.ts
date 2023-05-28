@@ -20,10 +20,12 @@ class UsersController {
         search = '',
       } = req.query;
       const user = (req as any).user
-      const users = await UserModel.find({ $and: [
-          { email: { $not: new RegExp(user.email) } },
+      const users = await UserModel.find({
+        _id: { $ne: user.id },
+        $and: [
           { email: new RegExp(String(search), 'i') },
-        ], status: { $not: new RegExp(UserStatus.BANNED) } }).populate('roles').exec();
+        ],
+        status: { $not: new RegExp(UserStatus.BANNED) } }).populate('roles').exec();
       const userDTOS = users.map(it => new UserDTO(it));
 
       return res.json(userDTOS);
@@ -232,7 +234,33 @@ class UsersController {
     }
   }
 
-  async changeEmailConfirm(req: Request, res: Response) {
+  async sendVerificationEmailCode(req: Request, res: Response) {
+    try {
+      const { user: currentUser } = req as any;
+
+      const user = await UserModel.findById(currentUser.id);
+
+      if (!user) {
+        return res.status(400).json({ message: 'Пользователь не найден' });
+      }
+
+      const { code, token } = TokenService.generateCodeToken();
+
+      user.tempEmailCode = token;
+      await user.save();
+
+      await EmailService.sendMail(user.email, `
+        <div>${code}</div>
+      `, 'Код для смены почты');
+
+      return res.json({ message: 'Код для подтверждения отправлен на новую почту' })
+    } catch (e) {
+      console.log(e);
+      return res.status(500).json({ message: 'Server error' })
+    }
+  }
+
+  async confirmEmail(req: Request, res: Response) {
     try {
       const { code } = req.body;
       const { user: currentUser } = req as any;
@@ -251,9 +279,47 @@ class UsersController {
         const correctCode = TokenService.getCode(user.tempEmailCode);
 
         if (correctCode === code) {
+          user.tempEmailCode = '';
+          user.isConfirmedEmail = true;
+          await user.save();
+        } else {
+          return res.status(400).json({ message: 'Код не верный' });
+        }
+      } catch (e) {
+        user.tempEmailCode = '';
+        return res.status(400).json({ message: 'Код не верный' });
+      }
+
+      return res.json({ message: 'Почта успешно подтверждена' })
+    } catch (e) {
+      console.log(e);
+      return res.status(500).json({ message: 'Server error' })
+    }
+  }
+
+  async changeEmailConfirm(req: Request, res: Response) {
+    try {
+      const { code } = req.body;
+      const { user: currentUser } = req as any;
+
+      const user = await UserModel.findById(currentUser.id);
+
+      if (!user) {
+        return res.status(400).json({ message: 'Пользователь не найден' });
+      }
+
+      if (!user.tempEmailCode) {
+        return res.status(400).json({ message: 'Код не верный' });
+      }
+
+      try {
+        const correctCode = TokenService.getCode(user.tempEmailCode);
+
+        if (correctCode === code && user.tempEmail) {
           user.email = user.tempEmail;
           user.tempEmail = '';
           user.tempEmailCode = '';
+          user.isConfirmedEmail = true;
           await user.save();
         } else {
           return res.status(400).json({ message: 'Код не верный' });

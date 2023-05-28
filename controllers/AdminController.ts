@@ -321,8 +321,8 @@ class AdminController {
       } = req.query;
       const user = (req as any).user
       const users = await UserModel.find({
+        _id: { $ne: user.id },
         $and: [
-          { email: { $not: new RegExp(user.email) } },
           { email: new RegExp(String(search), 'i') },
         ],
         ...(roles ? { roles: { $in: roles } } : {}),
@@ -344,7 +344,7 @@ class AdminController {
       return res.json(userDTOS);
     } catch (e) {
       console.log(e);
-      res.status(400).json({ message: 'Users error' })
+      res.status(500).json({ message: 'Server error' })
     }
   }
 

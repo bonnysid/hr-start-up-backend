@@ -54,6 +54,19 @@ router.post(
   UsersController.changeEmailConfirm
 );
 router.post(
+  '/email/confirm',
+  authMiddleware,
+  [
+    required('code'),
+  ],
+  UsersController.confirmEmail
+);
+router.post(
+  '/email/send/code',
+  authMiddleware,
+  UsersController.sendVerificationEmailCode
+);
+router.post(
   '/change/info',
   authMiddleware,
   [

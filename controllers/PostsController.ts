@@ -32,7 +32,7 @@ class PostsController {
         populate: {
           path: 'roles',
         },
-      }, {path: 'tags'}]).exec();
+      }, {path: 'tags'}, {path: 'comments'}]).exec();
       const postsDTOS = posts.map(it => new PostListItemDTO(it, (req as any).user));
 
       return res.json(postsDTOS);
@@ -65,7 +65,7 @@ class PostsController {
         populate: {
           path: 'roles',
         },
-      }, {path: 'tags'}]).exec();
+      }, {path: 'tags'}, {path: 'comments'}]).exec();
 
       return res.json(posts.map(it => new PostListItemDTO(it, (req as any).user)));
     } catch (e) {
