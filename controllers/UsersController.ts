@@ -251,7 +251,7 @@ class UsersController {
 
       await EmailService.sendMail(user.email, `
         <div>${code}</div>
-      `, 'Код для смены почты');
+      `, 'Код для подтверждения почты');
 
       return res.json({ message: 'Код для подтверждения отправлен на новую почту' })
     } catch (e) {
