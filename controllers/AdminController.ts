@@ -563,9 +563,8 @@ class AdminController {
 
   async deletePost(req: Request, res: Response) {
     try {
-      const user = (req as any).user;
       const {id} = req.params;
-      const post = await PostModel.findOne({_id: id, user: user.id});
+      const post = await PostModel.findOne({_id: id});
 
       if (!post) {
         return res.status(400).json({message: 'Пост не найден'})
