@@ -58,7 +58,7 @@ class ComplaintController {
         }
       ]).sort({ [String(sort)]: sortValueParsed }).exec();
 
-      return res.json(complaints.map(it => new ComplaintDTO({
+      return res.json(complaints.filter(it => it.userId || it.postId).map(it => new ComplaintDTO({
         ...it.toObject(),
         unreadableMessages: it.messages.filter((it: any) => {
           return !it.read && it.user._id.toString() !== currentUser.id
